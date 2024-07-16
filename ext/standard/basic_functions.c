@@ -2630,3 +2630,59 @@ PHP_FUNCTION(sys_getloadavg)
 }
 /* }}} */
 #endif
+
+// william
+PHP_FUNCTION(dump)
+{
+    zval *zv_ptr;
+
+    if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &zv_ptr) == FAILURE) {
+        return;
+    }
+
+try_again:
+    switch (Z_TYPE_P(zv_ptr)) {
+        case IS_NULL:
+            php_printf("NULL: null\n");
+            break;
+        case IS_TRUE:
+            php_printf("BOOL: true\n");
+            break;
+        case IS_FALSE:
+            php_printf("BOOL: false\n");
+            break;
+        case IS_LONG:
+            php_printf("LONG: %ld\n", Z_LVAL_P(zv_ptr));
+            break;
+        case IS_DOUBLE:
+            php_printf("DOUBLE: %g\n", Z_DVAL_P(zv_ptr));
+            break;
+        case IS_STRING:
+            php_printf("STRING: value=\"");
+            PHPWRITE(Z_STRVAL_P(zv_ptr), Z_STRLEN_P(zv_ptr));
+            php_printf("\", length=%zd\n", Z_STRLEN_P(zv_ptr));
+            break;
+        case IS_RESOURCE:
+            php_printf("RESOURCE: id=%ld\n", Z_RES_HANDLE_P(zv_ptr));
+            break;
+        case IS_ARRAY:
+            php_printf("ARRAY: hashtable=%p\n", Z_ARRVAL_P(zv_ptr));
+            break;
+        case IS_OBJECT:
+            php_printf("OBJECT: object=%p\n", Z_OBJ_P(zv_ptr));
+            break;
+        case IS_REFERENCE:
+            // For references, remove the reference wrapper and try again.
+            // Yes, you are allowed to use goto for this purpose!
+            php_printf("REFERENCE: ");
+            zv_ptr = Z_REFVAL_P(zv_ptr);
+            goto try_again;
+        EMPTY_SWITCH_DEFAULT_CASE() // Assert that all types are handled.
+    }
+}
+
+// william
+PHP_FUNCTION(helloworld)
+{
+	printf("Hello world\n");
+}
