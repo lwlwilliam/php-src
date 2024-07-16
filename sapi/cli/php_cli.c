@@ -154,7 +154,7 @@ const opt_struct OPTIONS[] = {
 	{'R', 1, "process-code"},
 	{'H', 0, "hide-args"},
 	{'r', 1, "run"},
-	{'k', 0, "phpinfo-as-text"},
+	{'k', 0, "phpinfo-as-text"}, // william
 	{'s', 0, "syntax-highlight"},
 	{'s', 0, "syntax-highlighting"},
 	{'S', 1, "server"},
@@ -495,7 +495,7 @@ static void php_cli_usage(char *argv0)
 				"  -f <file>        Parse and execute <file>.\n"
 				"  -h               This help\n"
 				"  -i               PHP information\n"
-				"  -k               phpinfo not as text\n"
+				"  -k               phpinfo not as text\n" // william
 				"  -l               Syntax check only (lint)\n"
 				"  -m               Show compiled in modules\n"
 				"  -r <code>        Run PHP <code> without using script tags <?..?>\n"
@@ -1242,7 +1242,7 @@ int main(int argc, char *argv[])
 
 	php_ini_builder_init(&ini_builder);
 
-	int phpinfo_as_text = 1;
+	int phpinfo_as_text = 1; // william
 	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 1, 2))!=-1) {
 		switch (c) {
 			case 'c':
@@ -1278,7 +1278,7 @@ int main(int argc, char *argv[])
 			case 'e': /* enable extended info output */
 				use_extended_info = 1;
 				break;
-			case 'k':
+			case 'k': // william
 				phpinfo_as_text = 0;
 				break;
 		}
@@ -1287,7 +1287,7 @@ exit_loop:
 
 	sapi_module->ini_defaults = sapi_cli_ini_defaults;
 	sapi_module->php_ini_path_override = ini_path_override;
-	sapi_module->phpinfo_as_text = phpinfo_as_text;
+	sapi_module->phpinfo_as_text = phpinfo_as_text; // william
 	sapi_module->php_ini_ignore_cwd = 1;
 	sapi_startup(sapi_module);
 	sapi_started = 1;
