@@ -2652,7 +2652,7 @@ try_again:
             php_printf("BOOL: false\n");
             break;
         case IS_LONG:
-            php_printf("LONG: %ld\n", Z_LVAL_P(zv_ptr));
+            php_printf("LONG: %lld\n", Z_LVAL_P(zv_ptr));
             break;
         case IS_DOUBLE:
             php_printf("DOUBLE: %g\n", Z_DVAL_P(zv_ptr));
@@ -2663,7 +2663,7 @@ try_again:
             php_printf("\", length=%zd\n", Z_STRLEN_P(zv_ptr));
             break;
         case IS_RESOURCE:
-            php_printf("RESOURCE: id=%ld\n", Z_RES_HANDLE_P(zv_ptr));
+            php_printf("RESOURCE: id=%lld\n", Z_RES_HANDLE_P(zv_ptr));
             break;
         case IS_ARRAY:
             php_printf("ARRAY: hashtable=%p\n", Z_ARRVAL_P(zv_ptr));
@@ -2684,5 +2684,5 @@ try_again:
 // william
 PHP_FUNCTION(helloworld)
 {
-	printf("Hello world\n");
+	php_printf("Hello world\n");
 }
