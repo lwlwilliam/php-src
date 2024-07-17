@@ -408,7 +408,7 @@ static void sapi_cli_send_header(sapi_header_struct *sapi_header, void *server_c
 
 static int php_cli_startup(sapi_module_struct *sapi_module) /* {{{ */
 {
-	return php_module_startup(sapi_module, NULL);
+	return php_module_startup(sapi_module, NULL); // mine: 启动 php 模块，也就是普通的扩展
 }
 /* }}} */
 
