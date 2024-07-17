@@ -126,7 +126,7 @@ PHP_CLI_API cli_shell_callbacks_t *php_cli_get_shell_callbacks(void)
 	return &cli_shell_callbacks;
 }
 
-const char HARDCODED_INI[] =
+const char HARDCODED_INI[] = // mine : 硬编码的 php.ini 配置
 	"html_errors=0\n"
 	"register_argc_argv=1\n"
 	"implicit_flush=1\n"
@@ -135,7 +135,7 @@ const char HARDCODED_INI[] =
 	"max_input_time=-1\n";
 
 
-const opt_struct OPTIONS[] = {
+const opt_struct OPTIONS[] = { // mine: php 执行选项
 	{'a', 0, "interactive"},
 	{'B', 1, "process-begin"},
 	{'C', 0, "no-chdir"}, /* for compatibility with CGI (do not chdir to script directory) */
@@ -612,17 +612,17 @@ static int do_cli(int argc, char **argv) /* {{{ */
 	char *exec_direct=NULL, *exec_run=NULL, *exec_begin=NULL, *exec_end=NULL;
 	char *arg_free=NULL, **arg_excp=&arg_free;
 	char *script_file=NULL, *translated_path = NULL;
-	bool interactive = false;
+	bool interactive = false; // mine: 用于标记是否为交互模式
 	const char *param_error=NULL;
 	bool hide_argv = false;
 	int num_repeats = 1;
-	pid_t pid = getpid();
+	pid_t pid = getpid(); // mine: 获取进程 ID
 
 	file_handle.filename = NULL;
 
 	zend_try {
 
-		CG(in_compilation) = 0; /* not initialized but needed for several options */
+		CG(in_compilation) = 0; // mine: CG 表示 compiler_globals 的缩写吧 /* not initialized but needed for several options */
 
 		while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 0, 2)) != -1) {
 			switch (c) {
@@ -683,7 +683,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 		}
 
 		/* Set some CLI defaults */
-		SG(options) |= SAPI_OPTION_NO_CHDIR;
+		SG(options) |= SAPI_OPTION_NO_CHDIR; // mine: SG 是 sapi_globals 的缩写吧
 
 		php_optind = orig_optind;
 		php_optarg = orig_optarg;
@@ -728,7 +728,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 					param_error = param_mode_conflict;
 					break;
 				} else if (script_file) {
-					param_error = "You can use -f only once.\n";
+					param_error = "You can use -f only once.\n"; // mine: 当 php -f phps/hello.php -f phps/hello.php 时就会报错
 					break;
 				}
 				script_file = php_optarg;
@@ -901,7 +901,7 @@ do_repeat:
 				goto err;
 			} else {
 				char real_path[MAXPATHLEN];
-				if (VCWD_REALPATH(script_file, real_path)) {
+				if (VCWD_REALPATH(script_file, real_path)) { // mine: 获取真实地址，也可以说绝对路径？
 					translated_path = strdup(real_path);
 				}
 				script_filename = script_file;
@@ -929,17 +929,17 @@ do_repeat:
 		argv[php_optind-1] = php_self;
 		SG(request_info).argv=argv+php_optind-1;
 
-		if (php_request_startup()==FAILURE) {
+		if (php_request_startup()==FAILURE) { // mine: 启动 request
 			*arg_excp = arg_free;
 			PUTS("Could not startup.\n");
 			goto err;
 		}
-		request_started = 1;
+		request_started = 1; // mine: 标记 request 已启动
 		CG(skip_shebang) = 1;
 
 		zend_register_bool_constant(
 			ZEND_STRL("PHP_CLI_PROCESS_TITLE"),
-			is_ps_title_available() == PS_TITLE_SUCCESS,
+			is_ps_title_available() == PS_TITLE_SUCCESS, // mine: 设置进程名称？
 			CONST_CS, 0);
 
 		*arg_excp = arg_free; /* reconstruct argv */
@@ -1131,10 +1131,10 @@ do_repeat:
 
 out:
 	if (file_handle.filename) {
-		zend_destroy_file_handle(&file_handle);
+		zend_destroy_file_handle(&file_handle); // mine: 释放打开的 php 脚本文件吧
 	}
 	if (request_started) {
-		php_request_shutdown((void *) 0);
+		php_request_shutdown((void *) 0); // mine: 关闭 request 吧
 	}
 	if (translated_path) {
 		free(translated_path);
@@ -1294,13 +1294,13 @@ exit_loop:
 
 	sapi_module->php_ini_ignore = ini_ignore;
 
-	sapi_module->executable_location = argv[0];
+	sapi_module->executable_location = argv[0]; // mine: 可执行文件所在位置
 
 	if (sapi_module == &cli_sapi_module) {
-		php_ini_builder_prepend_literal(&ini_builder, HARDCODED_INI);
+		php_ini_builder_prepend_literal(&ini_builder, HARDCODED_INI); // mine: php.ini 硬编码配置
 	}
 
-	sapi_module->ini_entries = php_ini_builder_finish(&ini_builder);
+	sapi_module->ini_entries = php_ini_builder_finish(&ini_builder); // mine: cli module 的 ini 配置项
 
 	/* startup after we get the above ini override se we get things right */
 	if (sapi_module->startup(sapi_module) == FAILURE) {
@@ -1312,7 +1312,7 @@ exit_loop:
 		exit_status = 1;
 		goto out;
 	}
-	module_started = 1;
+	module_started = 1; // mine: 模块已启动
 
 #if defined(PHP_WIN32)
 	php_win32_cp_cli_setup();
@@ -1334,11 +1334,11 @@ exit_loop:
 
 	zend_first_try {
 #ifndef PHP_CLI_WIN32_NO_CONSOLE
-		if (sapi_module == &cli_sapi_module) {
+		if (sapi_module == &cli_sapi_module) { // mine: 确定是启动 &cli_sapi_module 了
 #endif
 			exit_status = do_cli(argc, argv);
 #ifndef PHP_CLI_WIN32_NO_CONSOLE
-		} else {
+		} else { // mine: 还有一种可能就是通过“-S”来启动 &cli_server_sapi_module 
 			exit_status = do_cli_server(argc, argv);
 		}
 #endif
@@ -1349,10 +1349,10 @@ out:
 	}
 	php_ini_builder_deinit(&ini_builder);
 	if (module_started) {
-		php_module_shutdown();
+		php_module_shutdown(); // mine: 关闭 module 吧
 	}
 	if (sapi_started) {
-		sapi_shutdown();
+		sapi_shutdown(); // 关闭 sapi 吧
 	}
 #ifdef ZTS
 	tsrm_shutdown();

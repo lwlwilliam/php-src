@@ -2513,7 +2513,7 @@ PHPAPI bool php_execute_script(zend_file_handle *primary_file)
 		 *   otherwise it will get opened and added to the included_files list in zend_execute_scripts
 		 */
 		if (primary_file->filename &&
-			!zend_string_equals_literal(primary_file->filename, "Standard input code") &&
+			!zend_string_equals_literal(primary_file->filename, "Standard input code") && // mine: 文件名不为 "Standard input code"
 			primary_file->opened_path == NULL &&
 			primary_file->type != ZEND_HANDLE_FILENAME
 		) {

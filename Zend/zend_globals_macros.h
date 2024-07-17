@@ -31,7 +31,7 @@ BEGIN_EXTERN_C()
 #ifdef ZTS
 # define CG(v) ZEND_TSRMG_FAST(compiler_globals_offset, zend_compiler_globals *, v)
 #else
-# define CG(v) (compiler_globals.v)
+# define CG(v) (compiler_globals.v) // mine: 用于获取 compiler_globals 中的选项吧
 extern ZEND_API struct _zend_compiler_globals compiler_globals;
 #endif
 ZEND_API int zendparse(void);
@@ -41,7 +41,7 @@ ZEND_API int zendparse(void);
 #ifdef ZTS
 # define EG(v) ZEND_TSRMG_FAST(executor_globals_offset, zend_executor_globals *, v)
 #else
-# define EG(v) (executor_globals.v)
+# define EG(v) (executor_globals.v) // mine: 用于获取 executor_globals 中的选项吧
 extern ZEND_API zend_executor_globals executor_globals;
 #endif
 

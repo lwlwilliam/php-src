@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 87494cb9126aefff143d4f55db9e282d8a30f4a2 */
+ * Stub hash: c4291ab61916e3b9f7497dd36dcd651fdc5d5db9 */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_set_time_limit, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seconds, IS_LONG, 0)
@@ -2202,6 +2202,12 @@ ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_sapi_windows_generate_ctrl_event
 ZEND_END_ARG_INFO()
 #endif
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_dump, 0, 1, IS_VOID, 0)
+	ZEND_ARG_TYPE_INFO(0, value, IS_MIXED, 0)
+ZEND_END_ARG_INFO()
+
+#define arginfo_helloworld arginfo_flush
+
 
 ZEND_FUNCTION(set_time_limit);
 ZEND_FUNCTION(header_register_callback);
@@ -2820,6 +2826,8 @@ ZEND_FUNCTION(sapi_windows_set_ctrl_handler);
 #if defined(PHP_WIN32)
 ZEND_FUNCTION(sapi_windows_generate_ctrl_event);
 #endif
+ZEND_FUNCTION(dump);
+ZEND_FUNCTION(helloworld);
 
 
 static const zend_function_entry ext_functions[] = {
@@ -3468,6 +3476,8 @@ static const zend_function_entry ext_functions[] = {
 #if defined(PHP_WIN32)
 	ZEND_FE(sapi_windows_generate_ctrl_event, arginfo_sapi_windows_generate_ctrl_event)
 #endif
+	ZEND_FE(dump, arginfo_dump)
+	ZEND_FE(helloworld, arginfo_helloworld)
 	ZEND_FE_END
 };
 

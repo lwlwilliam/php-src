@@ -296,3 +296,14 @@ tmp-php.ini
 !/ext/fileinfo/magicdata.patch
 !/ext/pcre/pcre2lib/config.h
 !/win32/build/Makefile
+
+
+# ------------------------------------------------------------------------------
+# william:
+# ------------------------------------------------------------------------------
+/ext/opcache/jit/zend_jit_arm64.c
+/.idea/
+/.vscode/
+/phps/
+/output/
+
