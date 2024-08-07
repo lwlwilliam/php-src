@@ -421,7 +421,7 @@ static int php_cli_startup(sapi_module_struct *sapi_module) /* {{{ */
 
 static void sapi_cli_ini_defaults(HashTable *configuration_hash)
 {
-	zval tmp;
+	zval tmp; // mine: 噢，我还以为这是多余的变量，原来 INI_DEFAULT 宏展开后就起作用了
 	INI_DEFAULT("display_errors", "1");
 }
 /* }}} */
@@ -1285,10 +1285,11 @@ int main(int argc, char *argv[])
 	}
 exit_loop:
 
-	sapi_module->ini_defaults = sapi_cli_ini_defaults;
+	sapi_module->ini_defaults = sapi_cli_ini_defaults; // mine: 设置默认的 ini 配置
 	sapi_module->php_ini_path_override = ini_path_override;
 	sapi_module->phpinfo_as_text = phpinfo_as_text; // william
-	sapi_module->php_ini_ignore_cwd = 1;
+	// sapi_module->php_ini_ignore_cwd = 0; // william
+	sapi_module->php_ini_ignore_cwd = 1; // mine: 原代码是 1。设置为 0 时，就会将工作目录加入 ini 的搜索目录中 
 	sapi_startup(sapi_module);
 	sapi_started = 1;
 
