@@ -55,26 +55,26 @@ PHPAPI int php_optidx = -1;
 PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char **optarg, int *optind, int show_err, int arg_start) /* {{{ */
 {
 	static int optchr = 0;
-	static int dash = 0; // mine: 用于标记是否已经找到“-”号 /* have already seen the - */
-	static char **prev_optarg = NULL;
+	static int dash = 0; // my_comment: 用于标记是否已经找到“-”号 /* have already seen the - */
+	static char **prev_optarg = NULL; // my_comment: 用于记录上一个参数吧
 
-	php_optidx = -1; // mine: 参数的索引吧？
+	php_optidx = -1; // my_comment: 参数的索引吧？
 
-	if(prev_optarg && prev_optarg != optarg) { // mine: 如果已经存在处理过的参数，以及上一个参数跟现在这个参数不一致，则重置标记未找到“-”号，以及 optchr 是指参数本身的索引吧？例如“-a”的 a 的 optchr 就是 1，“-”就是 0？
+	if(prev_optarg && prev_optarg != optarg) { // my_comment: 如果已经存在处理过的参数，以及上一个参数跟现在这个参数不一致，则重置标记未找到“-”号，以及 optchr 是指参数本身的索引吧？例如“-a”的 a 的 optchr 就是 1，“-”就是 0？
 		/* reset the state */
 		optchr = 0;
 		dash = 0;
 	}
-	prev_optarg = optarg; // mine: 记录当前参数，并赋值到上一个参数（也就是记忆功能啦，方便下次对比）
+	prev_optarg = optarg; // my_comment: 记录当前参数，并赋值到上一个参数（也就是记忆功能啦，方便下次对比）
 
-	if (*optind >= argc) { // mine: 参数索引比参数数量还大，这就玩不了啦，所以结束
+	if (*optind >= argc) { // my_comment: 参数索引比参数数量还大，这就玩不了啦，所以结束
 		return(EOF);
 	}
 	if (!dash) { // mine：未找到“-”，现在开始找啦
-		if ((argv[*optind][0] !=  '-')) { // mine: 忽略不以“-”开头的参数
+		if ((argv[*optind][0] !=  '-')) { // my_comment: 忽略不以“-”开头的参数
 			return(EOF);
 		} else {
-			if (!argv[*optind][1]) // mine: 指以“-”开头，但又没跟其它字符的情况？
+			if (!argv[*optind][1]) // my_comment: 指以“-”开头，但又没跟其它字符的情况？
 			{
 				/*
 				* use to specify stdin. Need to let pgm process this and
@@ -84,9 +84,9 @@ PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char
 			}
 		}
 	}
-	if ((argv[*optind][0] == '-') && (argv[*optind][1] == '-')) { // mine: 以“--”开头的参数，注意是两个“-”啊
+	if ((argv[*optind][0] == '-') && (argv[*optind][1] == '-')) { // my_comment: 以“--”开头的参数，注意是两个“-”啊
 		const char *pos;
-		size_t arg_end = strlen(argv[*optind])-1; // mine: 参数结束位置的索引 
+		size_t arg_end = strlen(argv[*optind])-1; // my_comment: 参数结束位置的索引 
 
 		/* '--' indicates end of args if not followed by a known long option name */
 		if (argv[*optind][2] == '\0') { // 表示“--”后没有跟参数名
@@ -118,7 +118,7 @@ PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char
 		dash = 0;
 		arg_start += (int)strlen(opts[php_optidx].opt_name);
 	} else {
-		if (!dash) { // mine: 标记找到“-”了
+		if (!dash) { // my_comment: 标记找到“-”了
 			dash = 1;
 			optchr = 1;
 		}

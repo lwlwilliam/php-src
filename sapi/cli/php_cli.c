@@ -126,7 +126,7 @@ PHP_CLI_API cli_shell_callbacks_t *php_cli_get_shell_callbacks(void)
 	return &cli_shell_callbacks;
 }
 
-const char HARDCODED_INI[] = // mine : 硬编码的 php.ini 配置
+const char HARDCODED_INI[] = // my_comment: 硬编码的 php.ini 配置。1、不用 html_errors 显示错误信息；2、使用 argc 和 argv 变量吧？；3、默认刷新缓冲？；4、没有输出缓冲；5、不限制脚本的最大运行时间；6、不限制脚本解释输入的最大时间？（不知道什么来的）；
 	"html_errors=0\n"
 	"register_argc_argv=1\n"
 	"implicit_flush=1\n"
@@ -135,7 +135,7 @@ const char HARDCODED_INI[] = // mine : 硬编码的 php.ini 配置
 	"max_input_time=-1\n";
 
 
-const opt_struct OPTIONS[] = { // mine: php 执行选项
+const opt_struct OPTIONS[] = { // my_comment: php 执行选项
 	{'a', 0, "interactive"},
 	{'B', 1, "process-begin"},
 	{'C', 0, "no-chdir"}, /* for compatibility with CGI (do not chdir to script directory) */
@@ -154,9 +154,9 @@ const opt_struct OPTIONS[] = { // mine: php 执行选项
 	{'R', 1, "process-code"},
 	{'H', 0, "hide-args"},
 	{'r', 1, "run"},
-	{'k', 0, "phpinfo-as-text"}, // william
+	{'k', 0, "phpinfo-as-text"}, // my_code:
 	{'s', 0, "syntax-highlight"},
-	{'s', 0, "syntax-highlighting"},
+	// {'s', 0, "syntax-highlighting"}, // my_code:
 	{'S', 1, "server"},
 	{'t', 1, "docroot"},
 	{'w', 0, "strip"},
@@ -408,7 +408,7 @@ static void sapi_cli_send_header(sapi_header_struct *sapi_header, void *server_c
 
 static int php_cli_startup(sapi_module_struct *sapi_module) /* {{{ */
 {
-	return php_module_startup(sapi_module, NULL); // mine: 启动 php 模块，也就是普通的扩展
+	return php_module_startup(sapi_module, NULL); // my_comment: 启动 php 模块，也就是普通的扩展
 }
 /* }}} */
 
@@ -421,7 +421,7 @@ static int php_cli_startup(sapi_module_struct *sapi_module) /* {{{ */
 
 static void sapi_cli_ini_defaults(HashTable *configuration_hash)
 {
-	zval tmp; // mine: 噢，我还以为这是多余的变量，原来 INI_DEFAULT 宏展开后就起作用了
+	zval tmp; // my_comment: 噢，我还以为这是多余的变量，原来 INI_DEFAULT 宏展开后就起作用了
 	INI_DEFAULT("display_errors", "1");
 }
 /* }}} */
@@ -495,7 +495,7 @@ static void php_cli_usage(char *argv0)
 				"  -f <file>        Parse and execute <file>.\n"
 				"  -h               This help\n"
 				"  -i               PHP information\n"
-				"  -k               phpinfo not as text\n" // william
+				"  -k               phpinfo not as text\n" // my_code:
 				"  -l               Syntax check only (lint)\n"
 				"  -m               Show compiled in modules\n"
 				"  -r <code>        Run PHP <code> without using script tags <?..?>\n"
@@ -612,17 +612,17 @@ static int do_cli(int argc, char **argv) /* {{{ */
 	char *exec_direct=NULL, *exec_run=NULL, *exec_begin=NULL, *exec_end=NULL;
 	char *arg_free=NULL, **arg_excp=&arg_free;
 	char *script_file=NULL, *translated_path = NULL;
-	bool interactive = false; // mine: 用于标记是否为交互模式
+	bool interactive = false; // my_comment: 用于标记是否为交互模式
 	const char *param_error=NULL;
 	bool hide_argv = false;
 	int num_repeats = 1;
-	pid_t pid = getpid(); // mine: 获取进程 ID
+	pid_t pid = getpid(); // my_comment: 获取进程 ID
 
 	file_handle.filename = NULL;
 
 	zend_try {
 
-		CG(in_compilation) = 0; // mine: CG 表示 compiler_globals 的缩写吧 /* not initialized but needed for several options */
+		CG(in_compilation) = 0; // my_comment: CG 表示 compiler_globals 的缩写吧 /* not initialized but needed for several options */
 
 		while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 0, 2)) != -1) {
 			switch (c) {
@@ -683,7 +683,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 		}
 
 		/* Set some CLI defaults */
-		SG(options) |= SAPI_OPTION_NO_CHDIR; // mine: SG 是 sapi_globals 的缩写吧
+		SG(options) |= SAPI_OPTION_NO_CHDIR; // my_comment: SG 是 sapi_globals 的缩写吧
 
 		php_optind = orig_optind;
 		php_optarg = orig_optarg;
@@ -728,7 +728,7 @@ static int do_cli(int argc, char **argv) /* {{{ */
 					param_error = param_mode_conflict;
 					break;
 				} else if (script_file) {
-					param_error = "You can use -f only once.\n"; // mine: 当 php -f phps/hello.php -f phps/hello.php 时就会报错
+					param_error = "You can use -f only once.\n"; // my_comment: 当 php -f phps/hello.php -f phps/hello.php 时就会报错
 					break;
 				}
 				script_file = php_optarg;
@@ -901,7 +901,7 @@ do_repeat:
 				goto err;
 			} else {
 				char real_path[MAXPATHLEN];
-				if (VCWD_REALPATH(script_file, real_path)) { // mine: 获取真实地址，也可以说绝对路径？
+				if (VCWD_REALPATH(script_file, real_path)) { // my_comment: 获取真实地址，也可以说绝对路径？
 					translated_path = strdup(real_path);
 				}
 				script_filename = script_file;
@@ -929,17 +929,17 @@ do_repeat:
 		argv[php_optind-1] = php_self;
 		SG(request_info).argv=argv+php_optind-1;
 
-		if (php_request_startup()==FAILURE) { // mine: 启动 request
+		if (php_request_startup()==FAILURE) { // my_comment: 启动 request
 			*arg_excp = arg_free;
 			PUTS("Could not startup.\n");
 			goto err;
 		}
-		request_started = 1; // mine: 标记 request 已启动
+		request_started = 1; // my_comment: 标记 request 已启动
 		CG(skip_shebang) = 1;
 
 		zend_register_bool_constant(
 			ZEND_STRL("PHP_CLI_PROCESS_TITLE"),
-			is_ps_title_available() == PS_TITLE_SUCCESS, // mine: 设置进程名称？
+			is_ps_title_available() == PS_TITLE_SUCCESS, // my_comment: 设置进程名称？
 			CONST_CS, 0);
 
 		*arg_excp = arg_free; /* reconstruct argv */
@@ -1131,10 +1131,10 @@ do_repeat:
 
 out:
 	if (file_handle.filename) {
-		zend_destroy_file_handle(&file_handle); // mine: 释放打开的 php 脚本文件吧
+		zend_destroy_file_handle(&file_handle); // my_comment: 释放打开的 php 脚本文件吧
 	}
 	if (request_started) {
-		php_request_shutdown((void *) 0); // mine: 关闭 request 吧
+		php_request_shutdown((void *) 0); // my_comment: 关闭 request 吧
 	}
 	if (translated_path) {
 		free(translated_path);
@@ -1242,8 +1242,8 @@ int main(int argc, char *argv[])
 
 	php_ini_builder_init(&ini_builder);
 
-	int phpinfo_as_text = 1; // william
-	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 1, 2))!=-1) {
+	int phpinfo_as_text = 1; // my_code:
+	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 1, 2))!=-1) { // my_comment: OPTIONS 是所有可用参数吧？&php_optarg 应该就是用来保存获取的一个参数的，&php_optind 是当前获取到的参数索引位置吧，1 是显示错误？2 又是参数开始位置？？？
 		switch (c) {
 			case 'c':
 				if (ini_path_override) {
@@ -1278,30 +1278,30 @@ int main(int argc, char *argv[])
 			case 'e': /* enable extended info output */
 				use_extended_info = 1;
 				break;
-			case 'k': // william
+			case 'k': // my_code:
 				phpinfo_as_text = 0;
 				break;
 		}
 	}
 exit_loop:
 
-	sapi_module->ini_defaults = sapi_cli_ini_defaults; // mine: 设置默认的 ini 配置
+	sapi_module->ini_defaults = sapi_cli_ini_defaults; // my_comment: 设置默认的 ini 配置
 	sapi_module->php_ini_path_override = ini_path_override;
-	sapi_module->phpinfo_as_text = phpinfo_as_text; // william
-	// sapi_module->php_ini_ignore_cwd = 0; // william
-	sapi_module->php_ini_ignore_cwd = 1; // mine: 原代码是 1。设置为 0 时，就会将工作目录加入 ini 的搜索目录中 
-	sapi_startup(sapi_module);
-	sapi_started = 1;
+	sapi_module->phpinfo_as_text = phpinfo_as_text; // my_code:
+	// sapi_module->php_ini_ignore_cwd = 0; // my_code:
+	sapi_module->php_ini_ignore_cwd = 1; // my_comment: 原代码是 1。为什么要特意设置一下这个呢？我看 fpm/dbg/cli 都设置为 1 了。设置为 0 时，就会将工作目录加入 ini 的搜索目录中 
+	sapi_startup(sapi_module); // my_comment: 启动 sapi 模块
+	sapi_started = 1; // my_comment: 标记 sapi 已经启动了
 
-	sapi_module->php_ini_ignore = ini_ignore;
+	sapi_module->php_ini_ignore = ini_ignore; // my_comment: 是否忽略 php.ini 配置文件，默认这里是不忽略，如果设置成忽略，就使用代码里的默认值吧
 
-	sapi_module->executable_location = argv[0]; // mine: 可执行文件所在位置
+	sapi_module->executable_location = argv[0]; // my_comment: 可执行文件所在位置
 
-	if (sapi_module == &cli_sapi_module) {
-		php_ini_builder_prepend_literal(&ini_builder, HARDCODED_INI); // mine: php.ini 硬编码配置
+	if (sapi_module == &cli_sapi_module) { // my_comment: cli 环境下的预设配置
+		php_ini_builder_prepend_literal(&ini_builder, HARDCODED_INI); // my_comment: php.ini 硬编码配置
 	}
 
-	sapi_module->ini_entries = php_ini_builder_finish(&ini_builder); // mine: cli module 的 ini 配置项
+	sapi_module->ini_entries = php_ini_builder_finish(&ini_builder); // my_comment: cli module 的 ini 配置项
 
 	/* startup after we get the above ini override so we get things right */
 	if (sapi_module->startup(sapi_module) == FAILURE) {
@@ -1313,7 +1313,7 @@ exit_loop:
 		exit_status = 1;
 		goto out;
 	}
-	module_started = 1; // mine: 模块已启动
+	module_started = 1; // my_comment: 模块已启动
 
 #if defined(PHP_WIN32)
 	php_win32_cp_cli_setup();
@@ -1335,11 +1335,11 @@ exit_loop:
 
 	zend_first_try {
 #ifndef PHP_CLI_WIN32_NO_CONSOLE
-		if (sapi_module == &cli_sapi_module) { // mine: 确定是启动 &cli_sapi_module 了
+		if (sapi_module == &cli_sapi_module) { // my_comment: 确定是启动 &cli_sapi_module 了
 #endif
 			exit_status = do_cli(argc, argv);
 #ifndef PHP_CLI_WIN32_NO_CONSOLE
-		} else { // mine: 还有一种可能就是通过“-S”来启动 &cli_server_sapi_module 
+		} else { // my_comment: 还有一种可能就是通过“-S”来启动 &cli_server_sapi_module 
 			exit_status = do_cli_server(argc, argv);
 		}
 #endif
@@ -1350,7 +1350,7 @@ out:
 	}
 	php_ini_builder_deinit(&ini_builder);
 	if (module_started) {
-		php_module_shutdown(); // mine: 关闭 module 吧
+		php_module_shutdown(); // my_comment: 关闭 module 吧
 	}
 	if (sapi_started) {
 		sapi_shutdown(); // 关闭 sapi 吧

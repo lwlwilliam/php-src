@@ -2119,7 +2119,7 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 
 	le_index_ptr = zend_register_list_destructors_ex(NULL, NULL, "index pointer", 0);
 
-	/* Register constants */ // mine: 注册一些常量，例如 PHP 版本号，这些很多都是在 ./configure 的时候获取的吧？
+	/* Register constants */ // my_comment: 注册一些常量，例如 PHP 版本号，这些很多都是在 ./configure 的时候获取的吧？
 	REGISTER_MAIN_STRINGL_CONSTANT("PHP_VERSION", PHP_VERSION, sizeof(PHP_VERSION)-1, CONST_PERSISTENT | CONST_CS);
 	REGISTER_MAIN_LONG_CONSTANT("PHP_MAJOR_VERSION", PHP_MAJOR_VERSION, CONST_PERSISTENT | CONST_CS);
 	REGISTER_MAIN_LONG_CONSTANT("PHP_MINOR_VERSION", PHP_MINOR_VERSION, CONST_PERSISTENT | CONST_CS);
@@ -2256,11 +2256,11 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	   which is always an internal extension and to be initialized
 	   ahead of all other internals
 	 */
-	php_ini_register_extensions(); // mine: 加载并启动编译成共享库的扩展
+	php_ini_register_extensions(); // my_comment: 加载并启动编译成共享库的扩展
 	zend_startup_modules();
 
 	/* start Zend extensions */
-	zend_startup_extensions(); // mine: 启动 Zend 扩展
+	zend_startup_extensions(); // my_comment: 启动 Zend 扩展
 
 	zend_collect_module_handlers();
 
@@ -2274,7 +2274,7 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	}
 
 	/* disable certain classes and functions as requested by php.ini */
-	zend_disable_functions(INI_STR("disable_functions")); // mine: 禁用 php.ini 中 disable_functions 中的类和函数
+	zend_disable_functions(INI_STR("disable_functions")); // my_comment: 禁用 php.ini 中 disable_functions 中的类和函数
 	php_disable_classes();
 
 	/* make core report what it should */
@@ -2513,7 +2513,7 @@ PHPAPI bool php_execute_script(zend_file_handle *primary_file)
 		 *   otherwise it will get opened and added to the included_files list in zend_execute_scripts
 		 */
 		if (primary_file->filename &&
-			!zend_string_equals_literal(primary_file->filename, "Standard input code") && // mine: 文件名不为 "Standard input code"
+			!zend_string_equals_literal(primary_file->filename, "Standard input code") && // my_comment: 文件名不为 "Standard input code"
 			primary_file->opened_path == NULL &&
 			primary_file->type != ZEND_HANDLE_FILENAME
 		) {

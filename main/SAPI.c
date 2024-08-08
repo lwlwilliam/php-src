@@ -63,14 +63,14 @@ static void sapi_globals_dtor(sapi_globals_struct *sapi_globals)
 	zend_hash_destroy(&sapi_globals->known_post_content_types);
 }
 
-/* True globals (no need for thread safety) */
+// my_comment: 哈哈，真正的全局，不需要线性安全（后面的注释翻译） /* True globals (no need for thread safety) */
 SAPI_API sapi_module_struct sapi_module;
 
 
 SAPI_API void sapi_startup(sapi_module_struct *sf)
 {
 	sf->ini_entries = NULL;
-	sapi_module = *sf;
+	sapi_module = *sf; // my_comment: 将全局的 sapi_module_struct 置为 cli 的 sapi_module_struct
 
 #ifdef ZTS
 	ts_allocate_fast_id(&sapi_globals_id, &sapi_globals_offset, sizeof(sapi_globals_struct), (ts_allocate_ctor) sapi_globals_ctor, (ts_allocate_dtor) sapi_globals_dtor);

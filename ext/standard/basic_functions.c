@@ -2631,7 +2631,7 @@ PHP_FUNCTION(sys_getloadavg)
 /* }}} */
 #endif
 
-// william
+// my_code:
 PHP_FUNCTION(dump)
 {
     zval *zv_ptr;
@@ -2681,7 +2681,7 @@ try_again:
     }
 }
 
-// william
+// my_code:
 PHP_FUNCTION(helloworld)
 {
 	php_printf("Hello world\n");

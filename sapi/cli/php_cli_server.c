@@ -2434,14 +2434,14 @@ static char *php_cli_server_parse_addr(const char *addr, int *pport) {
 }
 
 static void php_cli_server_startup_workers(void) {
-	char *workers = getenv("PHP_CLI_SERVER_WORKERS"); // mine: 可以通过环境变量 PHP_CLI_SERVER_WORKERS 来设置工作进程数量
+	char *workers = getenv("PHP_CLI_SERVER_WORKERS"); // my_comment: 可以通过环境变量 PHP_CLI_SERVER_WORKERS 来设置工作进程数量
 	if (!workers) {
 		return;
 	}
 
 #if HAVE_FORK
-	php_cli_server_workers_max = ZEND_ATOL(workers); // mine: 将字符口中转为 long 整型吧
-	if (php_cli_server_workers_max > 1) { // mine: PHP_CLI_SERVER_WORKERS 是否大于 1 并不影响运行，只不过会有个提示罢了
+	php_cli_server_workers_max = ZEND_ATOL(workers); // my_comment: 将字符口中转为 long 整型吧
+	if (php_cli_server_workers_max > 1) { // my_comment: PHP_CLI_SERVER_WORKERS 是否大于 1 并不影响运行，只不过会有个提示罢了
 		zend_long php_cli_server_worker;
 
 		php_cli_server_workers = pecalloc(
@@ -2466,7 +2466,7 @@ static void php_cli_server_startup_workers(void) {
 			}
 		}
 	} else {
-		fprintf(stderr, "number of workers must be larger than 1\n"); // mine: 只是输出一下 PHP_CLI_SERVER_WORKERS 必须大于 1，其实不影响运行
+		fprintf(stderr, "number of workers must be larger than 1\n"); // my_comment: 只是输出一下 PHP_CLI_SERVER_WORKERS 必须大于 1，其实不影响运行
 	}
 #else
 	fprintf(stderr, "forking is not supported on this platform\n");
