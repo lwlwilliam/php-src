@@ -2037,7 +2037,7 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	/* Disable the message box for assertions.*/
 	_CrtSetReportMode(_CRT_ASSERT, 0);
 #else
-	php_os = PHP_OS;
+	php_os = PHP_OS; // my_comment: 这个 PHP_OS 在脚本构建的时候就已经确定了的，根据获取的系统信息自动生成
 #endif
 
 #ifdef ZTS
@@ -2051,8 +2051,8 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	}
 #endif
 
-	module_shutdown = false;
-	module_startup = true;
+	module_shutdown = false; // my_comment: 标记 module_shutdown 模块关闭状态为 false
+	module_startup = true; // my_comment: 标记 module_startup 模块启动状态为 true
 	sapi_initialize_empty_request();
 	sapi_activate();
 
