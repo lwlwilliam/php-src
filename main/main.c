@@ -2053,8 +2053,8 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 
 	module_shutdown = false; // my_comment: 标记 module_shutdown 模块关闭状态为 false
 	module_startup = true; // my_comment: 标记 module_startup 模块启动状态为 true
-	sapi_initialize_empty_request();
-	sapi_activate();
+	sapi_initialize_empty_request(); // my_comment: 初始化一个空请求？
+	sapi_activate(); // my_comment: 激活 sapi？又是设置 http 请求状态行为 NULL，又是设置 mimetype 为 NULL 之类的
 
 	if (module_initialized) {
 		return SUCCESS;

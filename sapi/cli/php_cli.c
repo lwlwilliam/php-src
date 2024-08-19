@@ -1304,7 +1304,7 @@ exit_loop:
 	sapi_module->ini_entries = php_ini_builder_finish(&ini_builder); // my_comment: cli module 的 ini 配置项
 
 	/* startup after we get the above ini override so we get things right */
-	if (sapi_module->startup(sapi_module) == FAILURE) {
+	if (sapi_module->startup(sapi_module) == FAILURE) { // my_comment: 扩展就是在这里根据 ini 配置加载的
 		/* there is no way to see if we must call zend_ini_deactivate()
 		 * since we cannot check if EG(ini_directives) has been initialized
 		 * because the executor's constructor does not set initialize it.
