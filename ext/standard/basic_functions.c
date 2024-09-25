@@ -2631,6 +2631,75 @@ PHP_FUNCTION(sys_getloadavg)
 /* }}} */
 #endif
 
+// mycode:
+char* my_pad_zero(int v) {
+    char* result = (char*)malloc(3 * sizeof(char));
+    snprintf(result, 3, "%02d", v);
+
+    return result;
+}
+PHP_FUNCTION(pmydate)
+{
+	zval *zv_ptr;
+
+	php_printf("passed %d parameters to the function: pmydate\n", ZEND_NUM_ARGS());
+	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &zv_ptr) == FAILURE) {
+		return;
+	}
+
+	if (Z_TYPE_P(zv_ptr) != IS_STRING) {
+		php_printf("Expect one string argument\n");
+		return;
+	}
+
+	time_t now = time(0);
+	struct tm *lt = localtime(&now);
+	char c;
+	char *pad_result;
+	int val;
+	char type;
+	for (int i = 0; i < (*zv_ptr).value.str->len; i++) {
+		c = (*zv_ptr).value.str->val[i];
+		type = 's';
+		switch (c)
+		{
+		case 'Y':
+			val = lt->tm_year + 1900;
+			type = 'i';
+			break;
+		case 'm':
+			val = lt->tm_mon + 1;
+			break;
+		case 'd':
+			val = lt->tm_mday;
+			break;
+		case 'H':
+			val = lt->tm_hour;
+			break;
+		case 'i':
+			val = lt->tm_min;
+			break;
+		case 's':
+			val = lt->tm_sec;
+			break;
+		default:
+			val = c;
+			type = 'c';
+			break;
+		}
+		if (type == 's') {
+			pad_result = my_pad_zero(val);
+			php_printf("%s", pad_result);
+			free(pad_result);
+		} else if (type == 'i') {
+			php_printf("%d", val);
+		} else if (type == 'c') {
+			php_printf("%c", val);
+		}
+	}
+	php_printf("\n");
+}
+
 // my_code:
 PHP_FUNCTION(dump)
 {

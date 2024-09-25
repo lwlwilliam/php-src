@@ -2878,3 +2878,4 @@ function sapi_windows_generate_ctrl_event(int $event, int $pid = 0): bool {}
 
 function dump(mixed $value): void {} // my_code:
 function helloworld(): void {} // my_code:
+function pmydate(string $value): void {} // my_code:

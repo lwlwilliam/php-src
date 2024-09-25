@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: 9f03fc7b052fc5a613ff450c13ae7a518c100008 */
+ * Stub hash: 7ef13a2dffad17810fc83ae9e0c5bc500a2d755e */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_set_time_limit, 0, 1, _IS_BOOL, 0)
 	ZEND_ARG_TYPE_INFO(0, seconds, IS_LONG, 0)
@@ -2208,6 +2208,10 @@ ZEND_END_ARG_INFO()
 
 #define arginfo_helloworld arginfo_flush
 
+ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_pmydate, 0, 1, IS_VOID, 0)
+	ZEND_ARG_TYPE_INFO(0, value, IS_STRING, 0)
+ZEND_END_ARG_INFO()
+
 
 ZEND_FUNCTION(set_time_limit);
 ZEND_FUNCTION(header_register_callback);
@@ -2828,6 +2832,7 @@ ZEND_FUNCTION(sapi_windows_generate_ctrl_event);
 #endif
 ZEND_FUNCTION(dump);
 ZEND_FUNCTION(helloworld);
+ZEND_FUNCTION(pmydate);
 
 
 static const zend_function_entry ext_functions[] = {
@@ -3478,6 +3483,7 @@ static const zend_function_entry ext_functions[] = {
 #endif
 	ZEND_FE(dump, arginfo_dump)
 	ZEND_FE(helloworld, arginfo_helloworld)
+	ZEND_FE(pmydate, arginfo_pmydate)
 	ZEND_FE_END
 };
 
