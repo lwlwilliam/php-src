@@ -279,6 +279,7 @@ PHPAPI double php_get_inf(void) /* {{{ */
 
 PHP_MINIT_FUNCTION(basic) /* {{{ */
 {
+	// php_printf("Hello\n");
 #ifdef ZTS
 	ts_allocate_id(&basic_globals_id, sizeof(php_basic_globals), (ts_allocate_ctor) basic_globals_ctor, (ts_allocate_dtor) basic_globals_dtor);
 # ifdef PHP_WIN32
@@ -2642,7 +2643,7 @@ PHP_FUNCTION(pmydate)
 {
 	zval *zv_ptr;
 
-	php_printf("passed %d parameters to the function: pmydate\n", ZEND_NUM_ARGS());
+	// php_printf("passed %d parameters to the function: pmydate\n", ZEND_NUM_ARGS());
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &zv_ptr) == FAILURE) {
 		return;
 	}
