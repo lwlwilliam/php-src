@@ -1819,7 +1819,7 @@ ZEND_API zend_result zend_execute_scripts(int type, zval *retval, int file_count
 			continue;
 		}
 
-		op_array = zend_compile_file(file_handle, type);
+		op_array = zend_compile_file(file_handle, type); // my_comment: 生成 op_array。可能整个项目的 op_array 都会经过这里生成？还是说只有入口文件才会？
 		if (file_handle->opened_path) {
 			zend_hash_add_empty_element(&EG(included_files), file_handle->opened_path);
 		}

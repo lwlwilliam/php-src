@@ -2532,7 +2532,7 @@ PHPAPI bool php_execute_script(zend_file_handle *primary_file)
 			zend_stream_init_filename(&append_file, PG(auto_append_file));
 			append_file_p = &append_file;
 		}
-		if (PG(max_input_time) != -1) {
+		if (PG(max_input_time) != -1) { // my_comment: 如果 max_execute_time 设置为 -1，就是不会超时了吧
 #ifdef PHP_WIN32
 			zend_unset_timeout();
 #endif

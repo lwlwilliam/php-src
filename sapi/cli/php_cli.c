@@ -963,7 +963,7 @@ do_repeat:
 			if (interactive) {
 				EG(exit_status) = cli_shell_callbacks.cli_shell_run();
 			} else {
-				php_execute_script(&file_handle);
+				php_execute_script(&file_handle); // my_comment: 这里似乎只是执行入口文件，其它引入的文件应该在内部的其它地方执行
 			}
 			break;
 		case PHP_MODE_LINT:
