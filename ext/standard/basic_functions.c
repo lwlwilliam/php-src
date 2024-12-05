@@ -2659,44 +2659,49 @@ PHP_FUNCTION(pmydate)
 	char *pad_result;
 	int val;
 	char type;
+	char prev = '\0';
 	for (int i = 0; i < (*zv_ptr).value.str->len; i++) {
 		c = (*zv_ptr).value.str->val[i];
-		type = 's';
-		switch (c)
-		{
-		case 'Y':
-			val = lt->tm_year + 1900;
-			type = 'i';
-			break;
-		case 'm':
-			val = lt->tm_mon + 1;
-			break;
-		case 'd':
-			val = lt->tm_mday;
-			break;
-		case 'H':
-			val = lt->tm_hour;
-			break;
-		case 'i':
-			val = lt->tm_min;
-			break;
-		case 's':
-			val = lt->tm_sec;
-			break;
-		default:
-			val = c;
-			type = 'c';
-			break;
+		if (prev != '\\') {
+			type = 's';
+			switch (c) {
+			case 'Y':
+				val = lt->tm_year + 1900;
+				type = 'i';
+				break;
+			case 'm':
+				val = lt->tm_mon + 1;
+				break;
+			case 'd':
+				val = lt->tm_mday;
+				break;
+			case 'H':
+				val = lt->tm_hour;
+				break;
+			case 'i':
+				val = lt->tm_min;
+				break;
+			case 's':
+				val = lt->tm_sec;
+				break;
+			default:
+				val = c;
+				type = 'c';
+				break;
+			}
+
+			if (type == 's') {
+				php_printf("%02d", val);
+			} else if (type == 'i') {
+				php_printf("%d", val);
+			} else if (type == 'c') {
+				php_printf("%c", val);
+			}
+		} else {
+			php_printf("%c", c);
 		}
-		if (type == 's') {
-			pad_result = my_pad_zero(val);
-			php_printf("%s", pad_result);
-			free(pad_result);
-		} else if (type == 'i') {
-			php_printf("%d", val);
-		} else if (type == 'c') {
-			php_printf("%c", val);
-		}
+
+		prev = c;
 	}
 	php_printf("\n");
 }
