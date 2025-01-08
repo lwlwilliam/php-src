@@ -1158,7 +1158,7 @@ err:
 #ifdef PHP_CLI_WIN32_NO_CONSOLE
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 #else
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) // my_comment: 非 windows 系统的入口函数，仅仅是通过 cli_win32.c 定义一个 PHP_CLI_WIN32_NO_CONSOLE 宏来区分系统是否为 windows
 #endif
 {
 #if defined(PHP_WIN32)
@@ -1173,20 +1173,36 @@ int main(int argc, char *argv[])
 #endif
 
 	int c;
-	int exit_status = SUCCESS;
-	int module_started = 0, sapi_started = 0;
-	char *php_optarg = NULL;
-	int php_optind = 1, use_extended_info = 0;
-	char *ini_path_override = NULL;
+	int exit_status = SUCCESS; // my_comment: 退出状态默认为 SUCCESS(0)
+	int module_started = 0, sapi_started = 0; // my_comment: 标记 module 和 sapi 是否已启动，0 为未启动
+	char *php_optarg = NULL; // my_comment: 应该是 php 的可选参数吧
+	int php_optind = 1, use_extended_info = 0; // my_comment: php_optind 应该是 php 可选参数的位置吧（index？），use_extended_info 用于标记是否使用扩展信息
+	char *ini_path_override = NULL; // my_comment: 重写 ini 路径？
 	struct php_ini_builder ini_builder;
-	int ini_ignore = 0;
-	sapi_module_struct *sapi_module = &cli_sapi_module;
+	int ini_ignore = 0; // my_comment: 是否忽略 ini？默认 0 不忽略？
+	sapi_module_struct *sapi_module = &cli_sapi_module; // my_comment: sapi_module 默认指向 cli_sapi_module，标记一些 sapi 信息
 
+	// my_code:
+	// for (int i = 0; i < argc; i++) {
+	// 	for (int j = 0; argv[i][j] != '\0'; j++) {
+	// 		printf("%c", argv[i][j]);
+	// 	}
+	// 	printf("\n");
+	// }
+	// printf("=====================================================================\n");
 	/*
 	 * Do not move this initialization. It needs to happen before argv is used
 	 * in any way.
 	 */
-	argv = save_ps_args(argc, argv);
+	argv = save_ps_args(argc, argv); // my_comment: 需要在使用 argv 之前调用，todo: 目前没有发现重置后有什么变化，例如：php -r 'echo 1;' 的输出一样
+	// my_code:
+	// for (int i = 0; i < argc; i++) {
+	// 	for (int j = 0; argv[i][j] != '\0'; j++) {
+	// 		printf("%c", argv[i][j]);
+	// 	}
+	// 	printf("\n");
+	// }
+	// printf("=====================================================================\n");
 
 #if defined(PHP_WIN32) && !defined(PHP_CLI_WIN32_NO_CONSOLE)
 	php_win32_console_fileno_set_vt100(STDOUT_FILENO, TRUE);
@@ -1241,8 +1257,8 @@ int main(int argc, char *argv[])
 #endif
 
 	php_ini_builder_init(&ini_builder);
-
 	int phpinfo_as_text = 1; // my_code:
+
 	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 1, 2))!=-1) { // my_comment: OPTIONS 是所有可用参数吧？&php_optarg 应该就是用来保存获取的一个参数的，&php_optind 是当前获取到的参数索引位置吧，1 是显示错误？2 又是参数开始位置？？？
 		switch (c) {
 			case 'c':
@@ -1278,7 +1294,7 @@ int main(int argc, char *argv[])
 			case 'e': /* enable extended info output */
 				use_extended_info = 1;
 				break;
-			case 'k': // my_code:
+			case 'k':  // my_code:
 				phpinfo_as_text = 0;
 				break;
 		}
@@ -1286,10 +1302,10 @@ int main(int argc, char *argv[])
 exit_loop:
 
 	sapi_module->ini_defaults = sapi_cli_ini_defaults; // my_comment: 设置默认的 ini 配置
-	sapi_module->php_ini_path_override = ini_path_override;
+	sapi_module->php_ini_path_override = ini_path_override; 
 	sapi_module->phpinfo_as_text = phpinfo_as_text; // my_code:
 	// sapi_module->php_ini_ignore_cwd = 0; // my_code:
-	sapi_module->php_ini_ignore_cwd = 1; // my_comment: 原代码是 1。为什么要特意设置一下这个呢？我看 fpm/dbg/cli 都设置为 1 了。设置为 0 时，就会将工作目录加入 ini 的搜索目录中 
+	sapi_module->php_ini_ignore_cwd = 1; // mycode & my_comment: 原代码是 1。为什么要特意设置一下这个呢？我看 fpm/dbg/cli 都设置为 1 了。设置为 0 时，就会将工作目录加入 ini 的搜索目录中
 	sapi_startup(sapi_module); // my_comment: 启动 sapi 模块
 	sapi_started = 1; // my_comment: 标记 sapi 已经启动了
 

@@ -142,7 +142,7 @@ static char** frozen_environ, **new_environ;
  * If needed, this code will make deep copies of argv and environ and return
  * these to the caller for further use. The original argv is then 'clobbered'
  * to store the process title.
- */
+ */ // my_comment: 在所有代码使用 main() 中原始的 argv 之前，早点调用这个方法。如果需要，这段代码将深度复制 argv 和 environ，并将这些返回给调用者以供进一步使用。然后原始的 argv 被“破坏”以存储进程标题。
 char** save_ps_args(int argc, char** argv)
 {
     save_argc = argc;
