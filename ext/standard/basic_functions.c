@@ -2637,6 +2637,7 @@ PHP_FUNCTION(pmydate)
 {
 	zval *zv_ptr;
 
+	php_printf("passed %d parameters to the function: pmydate\n", ZEND_NUM_ARGS());
 	if (zend_parse_parameters(ZEND_NUM_ARGS(), "z", &zv_ptr) == FAILURE) {
 		return;
 	}
