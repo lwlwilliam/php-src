@@ -54,7 +54,7 @@ PHPAPI int php_optidx = -1;
 
 PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char **optarg, int *optind, int show_err, int arg_start) /* {{{ */
 {
-	static int optchr = 0;
+	static int optchr = 0; // my_comment: 选项对应的字符，如 php -v 的 v 吧？
 	static int dash = 0; // my_comment: 用于标记是否已经找到“-”号 /* have already seen the - */
 	static char **prev_optarg = NULL; // my_comment: 用于记录上一个参数吧
 

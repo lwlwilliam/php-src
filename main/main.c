@@ -2013,6 +2013,7 @@ void dummy_invalid_parameter_handler(
 #endif
 
 /* {{{ php_module_startup */
+// my_comment: 启动扩展（普通扩展吧，在解释器中似乎都是将它称为 module）
 zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additional_module)
 {
 	zend_utility_functions zuf;

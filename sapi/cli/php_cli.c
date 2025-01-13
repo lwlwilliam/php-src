@@ -126,7 +126,7 @@ PHP_CLI_API cli_shell_callbacks_t *php_cli_get_shell_callbacks(void)
 	return &cli_shell_callbacks;
 }
 
-const char HARDCODED_INI[] = // my_comment: 硬编码的 php.ini 配置。1、不用 html_errors 显示错误信息；2、使用 argc 和 argv 变量吧？；3、默认刷新缓冲？；4、没有输出缓冲；5、不限制脚本的最大运行时间；6、不限制脚本解释输入的最大时间？（不知道什么来的）；
+const char HARDCODED_INI[] = // my_comment: 硬编码的 php.ini 配置。1、不用 html_errors 显示错误信息；2、使用 argc 和 argv 变量吧？；3、默认刷新缓冲？；4、没有输出缓冲；5、不限制脚本的最大运行时间；6、每个脚本花费在解释请求数据的最长时间，-1就是不限制
 	"html_errors=0\n"
 	"register_argc_argv=1\n"
 	"implicit_flush=1\n"
@@ -134,35 +134,36 @@ const char HARDCODED_INI[] = // my_comment: 硬编码的 php.ini 配置。1、�
 	"max_execution_time=0\n"
 	"max_input_time=-1\n";
 
-
-const opt_struct OPTIONS[] = { // my_comment: php 执行选项
+// my_comment: php 执行选项。数组元素的第一个字段表示选项对应字符；第二个字段标记是否需要参数，如果为1则需要参数值，如果为0则不需要参数；第三个字段是选项的名称
+const opt_struct OPTIONS[] = {
 	{'a', 0, "interactive"},
 	{'B', 1, "process-begin"},
-	{'C', 0, "no-chdir"}, /* for compatibility with CGI (do not chdir to script directory) */
-	{'c', 1, "php-ini"},
-	{'d', 1, "define"},
+	{'C', 0, "no-chdir"}, /* for compatibility with CGI (do not chdir to script directory) */ // my_comment: 为了兼容 CGI，不将工作目录改为脚本目录
+	{'c', 1, "php-ini"}, // my_comment: 在指定的目录查找 php.ini 文件
+	{'d', 1, "define"}, // my_comment: 使用 -d foo=bar 的形式来定义 INI 项
 	{'E', 1, "process-end"},
 	{'e', 0, "profile-info"},
 	{'F', 1, "process-file"},
 	{'f', 1, "file"},
 	{'h', 0, "help"},
-	{'i', 0, "info"},
+	{'i', 0, "info"}, // my_comment: PHP information
 	{'l', 0, "syntax-check"},
-	{'m', 0, "modules"},
-	{'n', 0, "no-php-ini"},
-	{'q', 0, "no-header"}, /* for compatibility with CGI (do not generate HTTP headers) */
+	{'m', 0, "modules"}, // my_comment: 显示已编译的模块
+	{'n', 0, "no-php-ini"}, // my_comment: 不使用 ini 文件
+	{'q', 0, "no-header"}, /* for compatibility with CGI (do not generate HTTP headers) */ // my_comment: 兼容 CGI，不生成 HTTP 头
 	{'R', 1, "process-code"},
 	{'H', 0, "hide-args"},
 	{'r', 1, "run"},
-	{'k', 0, "phpinfo-as-text"}, // my_code:
+	{'k', 0, "phpinfo-as-text"}, // my_code: 我自己添加的选项，用于控制是否将 phpinfo 以 text 的形式输出
 	{'s', 0, "syntax-highlight"},
-	// {'s', 0, "syntax-highlighting"}, // my_code:
-	{'S', 1, "server"},
+	// {'s', 0, "syntax-highlighting"}, // my_code: 我自己注释的，这似乎是重复的选项，跟上一行一样
+	{'S', 1, "server"}, // my_comment: 运行内置的 web server
 	{'t', 1, "docroot"},
-	{'w', 0, "strip"},
+	{'w', 0, "strip"}, // my_comment: 输出不带注释和空格的代码，也就是将代码的注释和空格都清理一下
 	{'?', 0, "usage"},/* help alias (both '?' and 'usage') */
 	{'v', 0, "version"},
 	{'z', 1, "zend-extension"},
+	// my_comment: 以下很多重复项，是不是为了便于别人接手？一个是简写，一个是全称？
 	{10,  1, "rf"},
 	{10,  1, "rfunction"},
 	{11,  1, "rc"},
@@ -174,12 +175,15 @@ const opt_struct OPTIONS[] = { // my_comment: php 执行选项
 	{14,  1, "ri"},
 	{14,  1, "rextinfo"},
 	{15,  0, "ini"},
+	// my_comment: 内部测试选项 -- 可能会被毫无征征兆地修改或移除？
 	/* Internal testing option -- may be changed or removed without notice,
 	 * including in patch releases. */
-	{16,  1, "repeat"},
+	{16,  1, "repeat"}, // my_comment: 有点意思，似乎是用来调整 php 脚本的执行次数，例如 php --repeat 10 xxx.php 就会连续执行 10 次 xxx.php。不过要小心啊，如果将 10 改成一个非整数，就会出事，例如 php --repeat ! xxx.php 就死循环了
+	// my_comment: 可以用来标记数组的结束，这样就不需要在循环时指定数组长度了
 	{'-', 0, NULL} /* end of args */
 };
 
+// my_comment: 比较模块名大小
 static int module_name_cmp(Bucket *f, Bucket *s) /* {{{ */
 {
 	return strcasecmp(((zend_module_entry *)Z_PTR(f->val))->name,
@@ -187,6 +191,7 @@ static int module_name_cmp(Bucket *f, Bucket *s) /* {{{ */
 }
 /* }}} */
 
+// my_comment: 打印所有模拟名啊
 static void print_modules(void) /* {{{ */
 {
 	HashTable sorted_registry;
@@ -216,6 +221,7 @@ static int extension_name_cmp(const zend_llist_element **f, const zend_llist_ele
 }
 /* }}} */
 
+// my_comment: 似乎普通扩展在这叫 module，zend 扩展才叫 extension？
 static void print_extensions(void) /* {{{ */
 {
 	zend_llist sorted_exts;
@@ -235,6 +241,7 @@ static void print_extensions(void) /* {{{ */
 #define STDERR_FILENO 2
 #endif
 
+// my_comment: 这是 select/poll/epoll 中的 select 啊。。。
 static inline bool sapi_cli_select(php_socket_t fd)
 {
 	fd_set wfd;
@@ -275,6 +282,7 @@ PHP_CLI_API ssize_t sapi_cli_single_write(const char *str, size_t str_length) /*
 }
 /* }}} */
 
+// my_comment: todo: "ub" 是指 unbuffered？无缓冲写？
 static size_t sapi_cli_ub_write(const char *str, size_t str_length) /* {{{ */
 {
 	const char *ptr = str;
@@ -460,7 +468,7 @@ static sapi_module_struct cli_sapi_module = {
 };
 /* }}} */
 
-static const zend_function_entry additional_functions[] = {
+static const zend_function_entry additional_functions[] = { // my_comment: 给 cli sapi 特意增加的函数？cli 特有的函数
 	ZEND_FE(dl, arginfo_dl)
 	PHP_FE(cli_set_process_title,        arginfo_cli_set_process_title)
 	PHP_FE(cli_get_process_title,        arginfo_cli_get_process_title)
@@ -1178,7 +1186,7 @@ int main(int argc, char *argv[]) // my_comment: 非 windows 系统的入口函�
 	char *php_optarg = NULL; // my_comment: 应该是 php 的可选参数吧
 	int php_optind = 1, use_extended_info = 0; // my_comment: php_optind 应该是 php 可选参数的位置吧（index？），use_extended_info 用于标记是否使用扩展信息
 	char *ini_path_override = NULL; // my_comment: 重写 ini 路径？
-	struct php_ini_builder ini_builder;
+	struct php_ini_builder ini_builder; // my_comment: 结果就一结构体：char *value; size_t length?
 	int ini_ignore = 0; // my_comment: 是否忽略 ini？默认 0 不忽略？
 	sapi_module_struct *sapi_module = &cli_sapi_module; // my_comment: sapi_module 默认指向 cli_sapi_module，标记一些 sapi 信息
 
@@ -1230,8 +1238,8 @@ int main(int argc, char *argv[]) // my_comment: 非 windows 系统的入口函�
 		}
 	}
 #endif
-
-#if defined(SIGPIPE) && defined(SIG_IGN)
+// my_comment: signal(SIGPIPE, SIG_IGN) 忽略 SIGPIPE 信号
+#if defined(SIGPIPE) && defined(SIG_IGN) 
 	signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE in standalone mode so
 								that sockets created via fsockopen()
 								don't kill PHP if the remote site
@@ -1247,7 +1255,7 @@ int main(int argc, char *argv[]) // my_comment: 非 windows 系统的入口函�
 # endif
 #endif
 
-	zend_signal_startup();
+	zend_signal_startup(); // my_comment: zend 信号启用
 
 #ifdef PHP_WIN32
 	_fmode = _O_BINARY;			/*sets default for file streams to binary */
@@ -1256,7 +1264,7 @@ int main(int argc, char *argv[]) // my_comment: 非 windows 系统的入口函�
 	setmode(_fileno(stderr), O_BINARY);		/* make the stdio mode be binary */
 #endif
 
-	php_ini_builder_init(&ini_builder);
+	php_ini_builder_init(&ini_builder); // my_comment: 初始化 ini builder？
 	int phpinfo_as_text = 1; // my_code:
 
 	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 1, 2))!=-1) { // my_comment: OPTIONS 是所有可用参数吧？&php_optarg 应该就是用来保存获取的一个参数的，&php_optind 是当前获取到的参数索引位置吧，1 是显示错误？2 又是参数开始位置？？？

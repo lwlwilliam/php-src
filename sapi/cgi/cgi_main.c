@@ -151,7 +151,7 @@ static const opt_struct OPTIONS[] = {
 	{'n', 0, "no-php-ini"},
 	{'q', 0, "no-header"},
 	{'s', 0, "syntax-highlight"},
-	{'s', 0, "syntax-highlighting"},
+	// {'s', 0, "syntax-highlighting"}, // my_comment: 重复的选项
 	{'w', 0, "strip"},
 	{'?', 0, "usage"},/* help alias (both '?' and 'usage') */
 	{'v', 0, "version"},
