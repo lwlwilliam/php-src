@@ -1265,7 +1265,7 @@ int main(int argc, char *argv[]) // my_comment: 非 windows 系统的入口函�
 #endif
 
 	php_ini_builder_init(&ini_builder); // my_comment: 初始化 ini builder？
-	int phpinfo_as_text = 1; // my_code:
+	int phpinfo_as_text = 1; // my_code: 标记 phpinfo 是否以 text 形式输出的一个变量
 
 	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 1, 2))!=-1) { // my_comment: OPTIONS 是所有可用参数吧？&php_optarg 应该就是用来保存获取的一个参数的，&php_optind 是当前获取到的参数索引位置吧，1 是显示错误？2 又是参数开始位置？？？
 		switch (c) {

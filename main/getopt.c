@@ -52,6 +52,7 @@ static int php_opt_error(int argc, char * const *argv, int optint, int optchr, i
 
 PHPAPI int php_optidx = -1;
 
+// my_comment: cli 初次调用时，optarg 指向 NULL，optind 指向 1
 PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char **optarg, int *optind, int show_err, int arg_start) /* {{{ */
 {
 	static int optchr = 0; // my_comment: 选项对应的字符，如 php -v 的 v 吧？
@@ -70,7 +71,8 @@ PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char
 	if (*optind >= argc) { // my_comment: 参数索引比参数数量还大，这就玩不了啦，所以结束
 		return(EOF);
 	}
-	if (!dash) { // mine：未找到“-”，现在开始找啦
+	// my_comment: 其实就是还没完全找到选项参数
+	if (!dash) { // my_comment：未找到“-”，现在开始找啦
 		if ((argv[*optind][0] !=  '-')) { // my_comment: 忽略不以“-”开头的参数
 			return(EOF);
 		} else {
