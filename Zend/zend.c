@@ -988,12 +988,12 @@ void zend_startup(zend_utility_functions *utility_functions) /* {{{ */
 	CG(map_ptr_size) = 0;
 	CG(map_ptr_last) = 0;
 #endif
-	EG(error_reporting) = E_ALL & ~E_NOTICE;
+	EG(error_reporting) = E_ALL & ~E_NOTICE; // my_comment: 这还给默认设个 error_reporing 级别？
 
 	zend_interned_strings_init();
-	zend_startup_builtin_functions();
-	zend_register_standard_constants();
-	zend_register_auto_global(zend_string_init_interned("GLOBALS", sizeof("GLOBALS") - 1, 1), 1, php_auto_globals_create_globals);
+	zend_startup_builtin_functions(); // my_comment: 启动内置函数？
+	zend_register_standard_constants(); // my_comment: 注册标准常量？
+	zend_register_auto_global(zend_string_init_interned("GLOBALS", sizeof("GLOBALS") - 1, 1), 1, php_auto_globals_create_globals); // 注册 $GLOBAL 全局变量？
 
 #ifndef ZTS
 	zend_init_rsrc_plist();

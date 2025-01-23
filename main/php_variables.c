@@ -951,7 +951,7 @@ static bool php_auto_globals_create_request(zend_string *name)
 	return 0;
 }
 
-void php_startup_auto_globals(void) // my_comment: php 启动自动生全局变量
+void php_startup_auto_globals(void) // my_comment: php 注册全局变量
 {
 	zend_register_auto_global(zend_string_init_interned("_GET", sizeof("_GET")-1, 1), 0, php_auto_globals_create_get);
 	zend_register_auto_global(zend_string_init_interned("_POST", sizeof("_POST")-1, 1), 0, php_auto_globals_create_post);

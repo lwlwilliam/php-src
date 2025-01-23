@@ -844,6 +844,9 @@ SAPI_API int sapi_send_headers(void)
 		return SUCCESS;
 	}
 
+	// my_comment: 拦截响应头，如果 expose_php 的值为 0，则删除 X-Powered-By 响应头
+	// php_printf("expose_php: %lld\n", PG(expose_php));
+
 	/* Success-oriented. We set headers_sent to 1 here to avoid an infinite loop
 	 * in case of an error situation.
 	 */

@@ -1310,14 +1310,14 @@ int main(int argc, char *argv[]) // my_comment: 非 windows 系统的入口函�
 exit_loop:
 
 	sapi_module->ini_defaults = sapi_cli_ini_defaults; // my_comment: 设置默认的 ini 配置
-	sapi_module->php_ini_path_override = ini_path_override; 
+	sapi_module->php_ini_path_override = ini_path_override;  // my_comment: 通过 -c 选项读取当前目录下的 ini 文件
 	sapi_module->phpinfo_as_text = phpinfo_as_text; // my_code:
 	// sapi_module->php_ini_ignore_cwd = 0; // my_code:
 	sapi_module->php_ini_ignore_cwd = 1; // mycode & my_comment: 原代码是 1。为什么要特意设置一下这个呢？我看 fpm/dbg/cli 都设置为 1 了。设置为 0 时，就会将工作目录加入 ini 的搜索目录中
 	sapi_startup(sapi_module); // my_comment: 启动 sapi 模块
 	sapi_started = 1; // my_comment: 标记 sapi 已经启动了
 
-	sapi_module->php_ini_ignore = ini_ignore; // my_comment: 是否忽略 php.ini 配置文件，默认这里是不忽略，如果设置成忽略，就使用代码里的默认值吧
+	sapi_module->php_ini_ignore = ini_ignore; // my_comment: 是否忽略 php.ini 配置文件，默认这里是不忽略，如果设置成忽略，就使用代码里的默认值吧。通过 -n 选项配置是否忽略 ini 配置文件
 
 	sapi_module->executable_location = argv[0]; // my_comment: 可执行文件所在位置
 
@@ -1325,7 +1325,7 @@ exit_loop:
 		php_ini_builder_prepend_literal(&ini_builder, HARDCODED_INI); // my_comment: php.ini 硬编码配置
 	}
 
-	sapi_module->ini_entries = php_ini_builder_finish(&ini_builder); // my_comment: cli module 的 ini 配置项
+	sapi_module->ini_entries = php_ini_builder_finish(&ini_builder); // my_comment: cli module 的 ini 配置项，在这结束对 ini 的配置读取和修改，结束了。读取完所有 ini 配置再启动真正的程序
 
 	/* startup after we get the above ini override so we get things right */
 	if (sapi_module->startup(sapi_module) == FAILURE) { // my_comment: 扩展就是在这里根据 ini 配置加载的

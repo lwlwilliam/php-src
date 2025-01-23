@@ -679,7 +679,8 @@ PHP_INI_BEGIN()
 	STD_PHP_INI_ENTRY_EX("display_errors",		"1",		PHP_INI_ALL,		OnUpdateDisplayErrors,	display_errors,			php_core_globals,	core_globals, display_errors_mode)
 	STD_PHP_INI_BOOLEAN("display_startup_errors",	"1",	PHP_INI_ALL,		OnUpdateBool,			display_startup_errors,	php_core_globals,	core_globals)
 	STD_PHP_INI_BOOLEAN("enable_dl",			"1",		PHP_INI_SYSTEM,		OnUpdateBool,			enable_dl,				php_core_globals,	core_globals)
-	STD_PHP_INI_BOOLEAN("expose_php",			"1",		PHP_INI_SYSTEM,		OnUpdateBool,			expose_php,				php_core_globals,	core_globals)
+	STD_PHP_INI_BOOLEAN("expose_php",			"1",		PHP_INI_ALL,		OnUpdateBool,			expose_php,				php_core_globals,	core_globals) // my_code: 将 expose_php 改为可以任意地方设置，同时也有个疑问，为什么官方要设置默认为开启，而且只能是 PHP_INI_SYSTEM 的修改权限？应该是使用的时机问题，看了下，在 request startup 时就使用了
+	// STD_PHP_INI_BOOLEAN("expose_php",			"1",		PHP_INI_SYSTEM,		OnUpdateBool,			expose_php,				php_core_globals,	core_globals) // my_code: 将 expore_php 改为可在任意地方设置
 	STD_PHP_INI_ENTRY("docref_root", 			"", 		PHP_INI_ALL,		OnUpdateString,			docref_root,			php_core_globals,	core_globals)
 	STD_PHP_INI_ENTRY("docref_ext",				"",			PHP_INI_ALL,		OnUpdateString,			docref_ext,				php_core_globals,	core_globals)
 	STD_PHP_INI_BOOLEAN("html_errors",			"1",		PHP_INI_ALL,		OnUpdateBool,			html_errors,			php_core_globals,	core_globals)
@@ -1759,12 +1760,13 @@ zend_result php_request_startup(void)
 
 		/* Disable realpath cache if an open_basedir is set */
 		if (PG(open_basedir) && *PG(open_basedir)) {
-			CWDG(realpath_cache_size_limit) = 0;
+			CWDG(realpath_cache_size_limit) = 0; // my_comment: current working directory globals？简称 CWD G？
 		}
 
-		if (PG(expose_php) && !SG(headers_sent)) {
-			sapi_add_header(SAPI_PHP_VERSION_HEADER, sizeof(SAPI_PHP_VERSION_HEADER)-1, 1);
-		}
+		// my_comment: SG -> SAPI Globals，全局变量了属于是。倒是 PG 就不那么直观，core globals？理解为 core->php global，简称 PG？
+		// if (PG(expose_php) && !SG(headers_sent)) {
+		// 	sapi_add_header(SAPI_PHP_VERSION_HEADER, sizeof(SAPI_PHP_VERSION_HEADER)-1, 1);
+		// }
 
 		if (PG(output_handler) && PG(output_handler)[0]) {
 			zval oh;
@@ -2061,7 +2063,7 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 		return SUCCESS;
 	}
 
-	sapi_module = *sf;
+	sapi_module = *sf; // my_comment: 只是单纯将全局变量赋值一下？
 
 	php_output_startup();
 
@@ -2089,11 +2091,11 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	zuf.printf_to_smart_str_function = php_printf_to_smart_str;
 	zuf.getenv_function = sapi_getenv;
 	zuf.resolve_path_function = php_resolve_path_for_zend;
-	zend_startup(&zuf);
+	zend_startup(&zuf); // my_comment: 就在这启用扩展的吧
 	zend_reset_lc_ctype_locale();
 	zend_update_current_locale();
 
-	zend_observer_startup();
+	zend_observer_startup(); // my_comment: zend 观察者启动？
 #if ZEND_DEBUG
 	zend_observer_error_register(report_zend_debug_error_notify_cb);
 #endif
@@ -2177,8 +2179,8 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	REGISTER_MAIN_LONG_CONSTANT("PHP_WINDOWS_NT_WORKSTATION", VER_NT_WORKSTATION, CONST_PERSISTENT | CONST_CS);
 #endif
 
-	php_binary_init();
-	if (PG(php_binary)) {
+	php_binary_init(); // my_comment: 二进制初始化？奇奇怪怪地
+	if (PG(php_binary)) { // my_comment: 将 PHP_BINARY 常量注册为命令 argv[0] 的绝对路径
 		REGISTER_MAIN_STRINGL_CONSTANT("PHP_BINARY", PG(php_binary), strlen(PG(php_binary)), CONST_PERSISTENT | CONST_CS | CONST_NO_FILE_CACHE);
 	} else {
 		REGISTER_MAIN_STRINGL_CONSTANT("PHP_BINARY", "", 0, CONST_PERSISTENT | CONST_CS | CONST_NO_FILE_CACHE);
@@ -2191,13 +2193,13 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	   load zend extensions and register php function extensions
 	   to be loaded later */
 	zend_stream_init();
-	if (php_init_config() == FAILURE) {
+	if (php_init_config() == FAILURE) { // my_comment: 就是在这，获取 ini 配置，根据配置来加载扩展
 		return FAILURE;
 	}
 	zend_stream_shutdown();
 
 	/* Register PHP core ini entries */
-	zend_register_ini_entries_ex(ini_entries, module_number, MODULE_PERSISTENT);
+	zend_register_ini_entries_ex(ini_entries, module_number, MODULE_PERSISTENT); // my_comment: 注册 php 核心 ini 项
 
 	/* Register Zend ini entries */
 	zend_register_standard_ini_entries();
@@ -2237,10 +2239,10 @@ zend_result php_module_startup(sapi_module_struct *sf, zend_module_entry *additi
 	php_startup_sapi_content_types();
 
 	/* Begin to fingerprint the process state */
-	zend_startup_system_id();
+	zend_startup_system_id(); // my_comment: 进程指纹？
 
 	/* startup extensions statically compiled in */
-	if (php_register_internal_extensions_func() == FAILURE) {
+	if (php_register_internal_extensions_func() == FAILURE) { // 注册内部扩展函数（静态编译的扩展）
 		php_printf("Unable to start builtin modules\n");
 		return FAILURE;
 	}
