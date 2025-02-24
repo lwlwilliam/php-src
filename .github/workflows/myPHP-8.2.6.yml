@@ -20,7 +20,9 @@ jobs:
     - name: dependence
       run: sudo apt install -y pkg-config build-essential autoconf bison re2c libxml2-dev libsqlite3-dev openssl libcurl4 libbz2-dev libavif-dev libfreetype6-dev libfreetype6 libgmp3-dev libwebp-dev libzip-dev libjpeg-dev
     - name: checkout
-      run: actions/checkout@v4
+      uses: actions/checkout@v4
+      with:
+        ref: myPHP-8.2.6
     - name: buildconf
       run: echo `pwd` && ls -l && ls -l .. && ./buildconf -f
     - name: configure
