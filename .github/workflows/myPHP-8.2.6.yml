@@ -18,23 +18,11 @@ jobs:
     - name: aptupdate
       run: sudo apt update -y
     - name: dependence
-      run: sudo apt install -y pkg-config build-essential autoconf bison re2c libxml2-dev \
-        libsqlite3-dev openssl libcurl4 libbz2-dev libavif-dev libfreetype6-dev libfreetype6 \
-        libgmp3-dev libwebp-dev libzip-dev libjpeg-dev
+      run: sudo apt install -y pkg-config build-essential autoconf bison re2c libxml2-dev libsqlite3-dev openssl libcurl4 libbz2-dev libavif-dev libfreetype6-dev libfreetype6 libgmp3-dev libwebp-dev libzip-dev libjpeg-dev
     - name: buildconf
       run: ./buildconf -f
     - name: configure
-      run: ./configure --prefix=$PREFIX_DIR --with-config-file-path=$INI_DIR \
-        --enable-embed --enable-fpm --enable-phpdbg --enable-debug --enable-bcmath \
-        --enable-calendar --enable-exif --enable-gd --enable-intl --enable-mbstring \
-        --enable-pcntl --enable-shmop --enable-soap --enable-sockets --enable-sysvmsg \
-        --enable-sysvshm --enable-mysqlnd --enable-phar --enable-filter --enable-iconv \
-        --with-fpm-user=www-data --with-fpm-group=www-data --with-fpm-systemd \
-        --with-config-file-path=$INI_DIR --with-openssl --with-zlib --with-bz2 \
-        --with-curl --with-ffi --with-avif --with-webp --with-jpeg --with-freetype \
-        --with-gettext --with-gmp --with-mysqli --with-pdo-mysql --with-pdo-pgsql \
-        --with-pgsql --with-libedit --with-readline --with-snmp --with-xsl --with-zip \
-        --with-pear --with-openssl-dir=/usr/include/openssl
+      run: ./configure --prefix=$PREFIX_DIR --with-config-file-path=$INI_DIR --enable-embed --enable-fpm --enable-phpdbg --enable-debug --enable-bcmath --enable-calendar --enable-exif --enable-gd --enable-intl --enable-mbstring --enable-pcntl --enable-shmop --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvshm --enable-mysqlnd --enable-phar --enable-filter --enable-iconv --with-fpm-user=www-data --with-fpm-group=www-data --with-fpm-systemd --with-config-file-path=$INI_DIR --with-openssl --with-zlib --with-bz2 --with-curl --with-ffi --with-avif --with-webp --with-jpeg --with-freetype --with-gettext --with-gmp --with-mysqli --with-pdo-mysql --with-pdo-pgsql --with-pgsql --with-libedit --with-readline --with-snmp --with-xsl --with-zip --with-pear --with-openssl-dir=/usr/include/openssl
     - name: make
       run: make
     - name: make install
