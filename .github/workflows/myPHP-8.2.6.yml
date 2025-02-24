@@ -10,13 +10,13 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     env:
-      PREFIX_DIR: $PWD/output
+      PREFIX_DIR: $PWD/php-src/output
       INI_DIR: $PREFIX_DIR/ini
       EXT_DIR: $PWD/output/bin/php-config --extension-dir
     steps:
     # - uses: actions/checkout@myPHP-8.2.6
     - name: echo
-      run: echo $PWD && ls -l
+      run: echo -e "$PWD\n\n" && ls -l
     - name: aptupdate
       run: sudo apt update -y
     - name: dependence
