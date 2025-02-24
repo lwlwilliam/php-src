@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     env:
-      PREFIX_DIR: $PWD/php-src/output
+      PREFIX_DIR: $PWD/output
       INI_DIR: $PREFIX_DIR/ini
       EXT_DIR: $PWD/output/bin/php-config --extension-dir
     steps:
@@ -19,6 +19,8 @@ jobs:
       run: sudo apt update -y
     - name: dependence
       run: sudo apt install -y pkg-config build-essential autoconf bison re2c libxml2-dev libsqlite3-dev openssl libcurl4 libbz2-dev libavif-dev libfreetype6-dev libfreetype6 libgmp3-dev libwebp-dev libzip-dev libjpeg-dev
+    - name: checkout
+      run: actions/checkout@v4
     - name: buildconf
       run: echo `pwd` && ls -l && ls -l .. && ./buildconf -f
     - name: configure
