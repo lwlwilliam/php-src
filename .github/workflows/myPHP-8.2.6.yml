@@ -14,6 +14,8 @@ jobs:
       INI_DIR: $PREFIX_DIR/ini
       EXT_DIR: $PWD/output/bin/php-config --extension-dir
     steps: # 步骤
+    - name: env # 输出环境变量
+      run: ZIP_FILE_NAME="php-8.2.6-ubuntu-22.04-x86_64-`date '+%Y-%m-%d.%H-%M-%S'`.zip" && echo "ZIP_FILE_NAME=$ZIP_FILE_NAME" >> $GITHUB_ENV
     - name: apt update # 更新 apt
       run: sudo apt update -y
     - name: dependence # 安装依赖，主要是扩展的依赖
@@ -37,10 +39,10 @@ jobs:
     - name: add ini # 添加 extension_dir 到 php.ini
       run: echo "extension_dir=${EXT_DIR}" >> $INI_DIR/php.ini
     - name: zip # 压缩
-      run: cd .. && zip -r php-8.2.6-ubuntu-22.04-x86_64-${GITHUB_SHA:0:7}.zip ./php-src # 生成 zip
+      run: cd .. && zip -r $ZIP_FILE_NAME ./php-src # 生成 zip
     - name: upload # 上传 zip
       uses: actions/upload-artifact@v4
       with:
         name: upload 
-        path: php-8.2.6-ubuntu-22.04-x86_64-${GITHUB_SHA:0:7}.zip
+        path: $PWD/$ZIP_FILE_NAME
         retention-days: 7
