@@ -39,7 +39,7 @@ jobs:
     - name: zip # 压缩
       run: cd .. && zip -r php-8.2.6-ubuntu-22.04-x86_64-${GITHUB_SHA:0:7}.zip ./php-src # 生成 zip
     - name: upload # 上传 zip
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: upload 
         path: php-8.2.6-ubuntu-22.04-x86_64-${GITHUB_SHA:0:7}.zip
