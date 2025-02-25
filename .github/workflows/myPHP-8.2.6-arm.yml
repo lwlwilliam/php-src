@@ -15,7 +15,7 @@ jobs:
       - name: apt update # 更新 apt
         run: sudo apt update -y
       - name: dependence # 安装依赖，主要是扩展的依赖
-        run: sudo apt install -y pkg-config build-essential autoconf bison re2c libxml2-dev libsqlite3-dev openssl libcurl4 libbz2-dev libavif-dev libfreetype6-dev libfreetype6 libgmp3-dev libwebp-dev libzip-dev libjpeg-dev libsystemd-dev libcurl-ocaml-dev libonig-dev libedit-dev libsnmp-dev libxslt1-dev libzip-dev
+        run: sudo apt install -y pkg-config build-essential autoconf bison re2c libxml2-dev libsqlite3-dev openssl libcurl4 libbz2-dev libavif-dev libfreetype6-dev libfreetype6 libgmp3-dev libwebp-dev libzip-dev libjpeg-dev libsystemd-dev libcurl-ocaml-dev libonig-dev libedit-dev libsnmp-dev libxslt1-dev libzip-dev libpq-dev
       - name: checkout # 检出代码，"actions/checkout@v4" 是 GitHub 提供的一个 action，用于检出代码
         uses: actions/checkout@v4
         with:
