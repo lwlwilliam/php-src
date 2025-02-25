@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-22.04 # 使用 ubuntu-22.04 系统
     steps: # 步骤
       - name: env # 预设环境变量
-        run: echo "WORKING_DIR=$PWD" >> $GITHUB_ENV && echo "PREFIX_DIR=$PWD/output" >> $GITHUB_ENV && echo "INI_DIR=$PWD/output/ini" >> $GITHUB_ENV && echo "EXT_DIR=$PWD/'output/bin/php-config --extension-dir'" >> $GITHUB_ENV && TMP_ZIP_DIR=`realpath $PWD/..` && echo "ZIP_DIR=$TMP_ZIP_DIR" >> $GITHUB_ENV && ZIP_FILE="php-8.2.6-ubuntu-22.04-x86_64-`date '+%Y-%m-%d.%H-%M-%S'`" && echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+        run: echo "WORKING_DIR=$PWD" >> $GITHUB_ENV && echo "PREFIX_DIR=$PWD/output" >> $GITHUB_ENV && echo "INI_DIR=$PWD/output/ini" >> $GITHUB_ENV && echo "EXT_DIR=$PWD/'output/bin/php-config --extension-dir'" >> $GITHUB_ENV && TMP_ZIP_DIR=`realpath $PWD/..` && echo "ZIP_DIR=$TMP_ZIP_DIR" >> $GITHUB_ENV && ZIP_FILE="php-8.2.6-ubuntu-22.04-x86_64-`date '+%Y-%m-%d.%H-%M-%S'`.zip" && echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
       - name: apt update # 更新 apt
         run: sudo apt update -y
       - name: dependence # 安装依赖，主要是扩展的依赖
@@ -39,6 +39,6 @@ jobs:
       - name: upload # 上传 zip
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.ZIP_FILE }}.zip
-          path: ${{ env.ZIP_DIR }}/${{ env.ZIP_FILE }}.zip
+          name: ${{ env.ZIP_FILE }}
+          path: ${{ env.ZIP_DIR }}/${{ env.ZIP_FILE }}
           retention-days: 7
