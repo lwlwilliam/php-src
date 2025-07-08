@@ -33,7 +33,7 @@ jobs:
 
       - name: Merge into my-master
         run: |
-          git checkout --track origin/my-master
+          git checkout my-master
           git merge master --no-ff -m "chore: sync with upstream/master $(date +'%Y-%m-%d')"
           git push origin my-master
 
