@@ -27,13 +27,13 @@ jobs:
 
       - name: Update local master branch
         run: |
-          git checkout master
+          git checkout --track origin/master
           git reset --hard upstream/master  # 强制同步本地 master 分支
           git push origin master --force  # 强制推送更新到你的 fork
 
       - name: Merge into my-master
         run: |
-          git checkout my-master
+          git checkout --track origin/my-master
           git merge master --no-ff -m "chore: sync with upstream/master $(date +'%Y-%m-%d')"
           git push origin my-master
 
