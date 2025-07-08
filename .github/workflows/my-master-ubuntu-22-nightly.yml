@@ -1,0 +1,44 @@
+name: my-master-ubuntu-22-nightly
+
+on:
+  workflow_call:
+    branches: ["my-master"] # 仅在 my-master 分支每天触发
+  push:
+    branches: ["my-master"] # 仅在 my-master 分支触发
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04 # 使用 ubuntu-22.04 系统
+    steps: # 步骤
+      - name: env # 预设环境变量
+        run: echo "WORKING_DIR=$PWD" >> $GITHUB_ENV && echo "PREFIX_DIR=$PWD/output" >> $GITHUB_ENV && echo "INI_DIR=$PWD/output/ini" >> $GITHUB_ENV && echo "EXT_DIR=$PWD/'output/bin/php-config --extension-dir'" >> $GITHUB_ENV && TMP_ZIP_DIR=`realpath $PWD/..` && echo "ZIP_DIR=$TMP_ZIP_DIR" >> $GITHUB_ENV && ZIP_FILE="php-master-ubuntu-22.04-x86_64-`date '+%Y-%m-%d.%H-%M-%S'`.zip" && echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+      - name: apt update # 更新 apt
+        run: sudo apt update -y
+      - name: dependence # 安装依赖，主要是扩展的依赖
+        run: sudo apt install -y pkg-config build-essential autoconf bison re2c libxml2-dev libsqlite3-dev openssl libcurl4 libbz2-dev libavif-dev libfreetype6-dev libfreetype6 libgmp3-dev libwebp-dev libzip-dev libjpeg-dev libsystemd-dev libcurl-ocaml-dev libonig-dev libedit-dev libsnmp-dev libxslt1-dev libzip-dev libpq-dev libpq5
+      - name: checkout # 检出代码，"actions/checkout@v4" 是 GitHub 提供的一个 action，用于检出代码
+        uses: actions/checkout@v4
+        with:
+          ref: my-master # 检出 my-master 分支
+      - name: buildconf # 构建 configure
+        run: ./buildconf -f
+      - name: configure # 编译配置，添加了较为常见的扩展
+        run: ./configure --prefix=${{ env.PREFIX_DIR }} --with-config-file-path=${{ env.INI_DIR }} --enable-embed --enable-fpm --enable-phpdbg --enable-debug --enable-bcmath --enable-calendar --enable-exif --enable-gd --enable-intl --enable-mbstring --enable-pcntl --enable-shmop --enable-soap --enable-sockets --enable-sysvmsg --enable-sysvshm --enable-mysqlnd --enable-phar --enable-filter --enable-iconv --with-fpm-user=www-data --with-fpm-group=www-data --with-fpm-systemd --with-openssl --with-zlib --with-bz2 --with-curl --with-ffi --with-avif --with-webp --with-jpeg --with-freetype --with-gettext --with-gmp --with-mysqli --with-pdo-mysql --with-pdo-pgsql --with-pgsql --with-libedit --with-readline --with-snmp --with-xsl --with-zip --with-pear --with-openssl-dir=/usr/include/openssl
+      - name: make # 编译
+        run: make
+      - name: make install # 安装
+        run: make install
+      - name: mkdir # 创建 php.ini 目录
+        run: mkdir -p ${{ env.INI_DIR }}
+      - name: cp # 复制 php.ini-production 到 php.ini
+        run: cp ${{ env.WORKING_DIR }}/php.ini-production ${{ env.INI_DIR }}/php.ini
+      - name: add ini # 添加 extension_dir 到 php.ini
+        run: echo "extension_dir=${{ env.EXT_DIR }}" >> ${{ env.INI_DIR }}/php.ini
+      - name: zip # 已经编译完了，可以修改工作目录生成压缩包
+        run:  cd .. && zip -r ${{ env.ZIP_FILE }} ./php-src
+      - name: upload # 上传 zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ZIP_FILE }}
+          path: ${{ env.ZIP_DIR }}/${{ env.ZIP_FILE }}
+          retention-days: 2
