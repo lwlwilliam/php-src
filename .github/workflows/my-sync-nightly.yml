@@ -2,12 +2,9 @@ name: Sync and Merge PHP-SRC
 
 on:
   schedule:
-    # 每天自动同步
-    - cron: "0 1 * * *"
-	workflow_dispatch: ~
+    - cron: "0 1 * * *" # 每天自动同步
   push:
     branches: ["my-master"]
-  workflow_dispatch:  # 允许手动触发
 
 jobs:
   sync-and-merge:
