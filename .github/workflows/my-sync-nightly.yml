@@ -2,8 +2,9 @@ name: Sync and Merge PHP-SRC
 
 on:
   schedule:
-    # 每天 UTC 时间 00:00 (北京时间 08:00) 自动同步
-    - cron: '0 0 * * *'
+    # 每天自动同步
+    - cron: "0 1 * * *"
+	workflow_dispatch: ~
   push:
     branches: ["my-master"]
   workflow_dispatch:  # 允许手动触发
