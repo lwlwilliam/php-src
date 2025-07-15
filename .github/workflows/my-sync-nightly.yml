@@ -3,8 +3,9 @@ name: Sync and Merge PHP-SRC
 on:
   schedule:
     - cron: "0 1 * * *" # 每天自动同步
-  push:
-    branches: ["my-master"]
+  workflow_dispatch: ~
+#  push:
+#    branches: ["my-master"]
 
 jobs:
   sync-and-merge:
