@@ -1,5 +1,5 @@
 --TEST--
-ob_start(): Check behaviour with deprecation converted to exception
+ob_start(): Check behaviour with nested deprecation converted to exception [bad return]
 --FILE--
 <?php
 

@@ -1,5 +1,5 @@
 /* This is a generated file, edit the .stub.php file instead.
- * Stub hash: c087ac501d0abe14ed87968023d837f358e6fee8 */
+ * Stub hash: c2245ec496551980ca17ff4472cc1790653e41bd */
 
 ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(arginfo_curl_close, 0, 1, IS_VOID, 0)
 	ZEND_ARG_OBJ_INFO(0, handle, CurlHandle, 0)
@@ -812,6 +812,9 @@ static void register_curl_symbols(int module_number)
 	REGISTER_LONG_CONSTANT("CURLOPT_HAPROXYPROTOCOL", CURLOPT_HAPROXYPROTOCOL, CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CURL_LOCK_DATA_PSL", CURL_LOCK_DATA_PSL, CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CURLAUTH_BEARER", CURLAUTH_BEARER, CONST_PERSISTENT);
+#if LIBCURL_VERSION_NUM >= 0x080600 /* Available since 8.6.0 */
+	REGISTER_LONG_CONSTANT("CURLINFO_QUEUE_TIME_T", CURLINFO_QUEUE_TIME_T, CONST_PERSISTENT);
+#endif
 	REGISTER_LONG_CONSTANT("CURLINFO_APPCONNECT_TIME_T", CURLINFO_APPCONNECT_TIME_T, CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CURLINFO_CONNECT_TIME_T", CURLINFO_CONNECT_TIME_T, CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CURLINFO_NAMELOOKUP_TIME_T", CURLINFO_NAMELOOKUP_TIME_T, CONST_PERSISTENT);
@@ -824,6 +827,9 @@ static void register_curl_symbols(int module_number)
 #endif
 #if LIBCURL_VERSION_NUM >= 0x080a00 /* Available since 8.10.0 */
 	REGISTER_LONG_CONSTANT("CURLINFO_POSTTRANSFER_TIME_T", CURLINFO_POSTTRANSFER_TIME_T, CONST_PERSISTENT);
+#endif
+#if LIBCURL_VERSION_NUM >= 0x080200 /* Available since 8.2.0 */
+	REGISTER_LONG_CONSTANT("CURLINFO_CONN_ID", CURLINFO_CONN_ID, CONST_PERSISTENT);
 #endif
 	REGISTER_LONG_CONSTANT("CURLOPT_DISALLOW_USERNAME_IN_URL", CURLOPT_DISALLOW_USERNAME_IN_URL, CONST_PERSISTENT);
 	REGISTER_LONG_CONSTANT("CURLOPT_PROXY_TLS13_CIPHERS", CURLOPT_PROXY_TLS13_CIPHERS, CONST_PERSISTENT);
@@ -976,15 +982,10 @@ static void register_curl_symbols(int module_number)
 
 
 	zend_attribute *attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0 = zend_add_global_constant_attribute(const_CURLOPT_BINARYTRANSFER, ZSTR_KNOWN(ZEND_STR_DEPRECATED_CAPITALIZED), 2);
-	zval attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg0;
-	zend_string *attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg0_str = zend_string_init("8.4", strlen("8.4"), 1);
-	ZVAL_STR(&attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg0, attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg0_str);
-	ZVAL_COPY_VALUE(&attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0->args[0].value, &attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg0);
+	ZVAL_STR(&attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0->args[0].value, ZSTR_KNOWN(ZEND_STR_8_DOT_4));
 	attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0->args[0].name = ZSTR_KNOWN(ZEND_STR_SINCE);
-	zval attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg1;
 	zend_string *attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg1_str = zend_string_init("as it had no effect since 5.1.2", strlen("as it had no effect since 5.1.2"), 1);
-	ZVAL_STR(&attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg1, attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg1_str);
-	ZVAL_COPY_VALUE(&attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0->args[1].value, &attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg1);
+	ZVAL_STR(&attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0->args[1].value, attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0_arg1_str);
 	attribute_Deprecated_const_CURLOPT_BINARYTRANSFER_0->args[1].name = ZSTR_KNOWN(ZEND_STR_MESSAGE);
 }
 

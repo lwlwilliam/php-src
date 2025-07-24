@@ -45,6 +45,12 @@ PHP 8.5 UPGRADE NOTES
     change, but should more closely match user expectations, demonstrated by
     GH-15753 and GH-16198.
 
+- DOM:
+  . Cloning a DOMNamedNodeMap, DOMNodeList, Dom\NamedNodeMap, Dom\NodeList,
+    Dom\HTMLCollection, and Dom\DtdNamedNodeMap now fails.
+    This never actually resulted in a working object,
+    so the impact should actually be zero.
+
 - FileInfo:
   . finfo_file() and finfo::file() now throws a ValueError instead of a
     TypeError when $filename contains nul bytes.
@@ -182,6 +188,16 @@ PHP 8.5 UPGRADE NOTES
     first redirect thus if there is any follow up redirect, it won't go
     any further. CURLFOLLOW_ALL is equivalent to setting CURLOPT_FOLLOWLOCATION
     to true.
+  . Added support for CURLINFO_CONN_ID (libcurl >= 8.2.0) to the curl_getinfo()
+    function. This constant allows retrieving the unique ID of the connection
+    used by a cURL transfer. It is primarily useful when connection reuse or
+    connection pooling logic is needed in PHP-level applications. When
+    curl_getinfo() returns an array, this value is available as the "conn_id" key.
+  . Added support for CURLINFO_QUEUE_TIME_T (libcurl >= 8.6.0) to the curl_getinfo()
+    function. This constant allows retrieving the time (in microseconds) that the
+    request spent in libcurl’s connection queue before it was sent.
+    This value can also be retrieved by passing CURLINFO_QUEUE_TIME_T to the
+    curl_getinfo() $option parameter.
 
 - DOM:
   . Added Dom\Element::$outerHTML.
@@ -228,6 +244,16 @@ PHP 8.5 UPGRADE NOTES
     process was terminated unexpectedly. In such cases, a warning is emitted
     and the function returns false. Previously, these errors were silently
     ignored. This change affects only the sendmail transport.
+  . getimagesize() now supports HEIF/HEIC images.
+
+- Standard:
+  . getimagesize() now supports SVG images when ext-libxml is also loaded.
+    Similarly, image_type_to_extension() and image_type_to_extension()
+    now also handle IMAGETYPE_SVG.
+  . The array returned by getimagesize() now has two additional entries:
+    "width_unit" and "height_unit" to indicate in which units the dimensions
+    are expressed. These units are px by default. They are not necessarily
+    the same (just to give one example: one may be cm and the other may be px).
 
 - XSL:
   . The $namespace argument of XSLTProcessor::getParameter(),
@@ -264,6 +290,12 @@ PHP 8.5 UPGRADE NOTES
     deprecation warning will bypass the handler with the bad return to ensure
     it is visible; if there are nested output handlers the next one will still
     be used.
+    RFC: https://wiki.php.net/rfc/deprecations_php_8_4
+  . Trying to produce output (e.g. with `echo`) within a user output handler
+    is deprecated. The deprecation warning will bypass the handler producing the
+    output to ensure it is visible; if there are nested output handlers the next
+    one will still be used. If a user output handler returns a non-string and
+    produces output, the warning about producing an output is emitted first.
     RFC: https://wiki.php.net/rfc/deprecations_php_8_4
 
 - Hash:
@@ -349,7 +381,7 @@ PHP 8.5 UPGRADE NOTES
 - Sockets:
   . socket_create_listen, socket_bind and socket_sendto throw a
     ValueError if the port is lower than 0 or greater than 65535,
-    also if any of the hints array entry is indexes numerically.
+    and also if any of the hints array entries are indexed numerically.
   . socket_addrinfo_lookup throws a TypeError if any of the hints
     values cannot be cast to int and can throw a ValueError if
     any of these values overflow.
@@ -359,6 +391,8 @@ PHP 8.5 UPGRADE NOTES
   . socket_create/socket_bind can create AF_PACKET family sockets.
   . socket_getsockname gets the interface index and its string
     representation with AF_PACKET socket.
+  . socket_set_option with multicast context throws a ValueError
+    when the created socket is not of AF_INET/AF_INET6 family.
 
 - Tidy:
   . tidy::__construct/parseFile/parseString now throws a ValueError
@@ -384,8 +418,10 @@ PHP 8.5 UPGRADE NOTES
   . get_exception_handler() allows retrieving the current user-defined exception
     handler function.
     RFC: https://wiki.php.net/rfc/get-error-exception-handler
-  . The clone language construct is now a function.
+  . The clone language construct is now a function and supports reassigning
+    (readonly) properties during cloning via the new $withProperties parameter.
     RFC: https://wiki.php.net/rfc/clone_with_v2
+  . Added Closure::getCurrent() to receive currently executing closure.
 
 - Curl:
   . curl_multi_get_handles() allows retrieving all CurlHandles current
@@ -396,6 +432,7 @@ PHP 8.5 UPGRADE NOTES
     RFC: https://wiki.php.net/rfc/curl_share_persistence_improvement
 
 - DOM:
+  . Added Dom\Element::getElementsByClassName().
   . Added Dom\Element::insertAdjacentHTML().
 
 - Enchant:
@@ -409,6 +446,9 @@ PHP 8.5 UPGRADE NOTES
     the locale is written right to left (after its enrichment with likely subtags).
   . Added grapheme_levenshtein() function.
     RFC: https://wiki.php.net/rfc/grapheme_levenshtein
+
+- Opcache:
+  . Added opcache_is_script_cached_in_file_cache().
 
 - Pdo\Sqlite:
   . Added support for Pdo\Sqlite::setAuthorizer(), which is the equivalent of
@@ -427,6 +467,7 @@ PHP 8.5 UPGRADE NOTES
     ReflectionConstant::getExtensionName() were introduced.
   . ReflectionConstant::getAttributes() was introduced.
     RFC: https://wiki.php.net/rfc/attributes-on-constants
+  . ReflectionProperty::getMangledName() was introduced.
 
 - Sqlite:
   . Sqlite3Stmt::busy to check if a statement had been fetched
@@ -445,6 +486,13 @@ PHP 8.5 UPGRADE NOTES
     across multiple PHP requests.
     RFC: https://wiki.php.net/rfc/curl_share_persistence_improvement
 
+- URI:
+  . Uri\UriException, Uri\InvalidUriException, Uri\UriComparisonMode,
+    Uri\Rfc3986\Uri, Uri\WhatWg\InvalidUrlException,
+    Uri\WhatWg\UrlValidationErrorType, Uri\WhatWg\UrlValidationError,
+    and Uri\WhatWg\Url are added.
+    RFC: https://wiki.php.net/rfc/url_parsing_api
+
 ========================================
 8. Removed Extensions and SAPIs
 ========================================
@@ -459,7 +507,7 @@ PHP 8.5 UPGRADE NOTES
     CURLFOLLOW_FIRSTONLY.
 
 - Fileinfo:
-  . Upgraded to file 5.46.
+  . Upgraded file from 5.45 to 5.46.
   . The return type of finfo_close() has been changed to true, rather
     than bool.
 
@@ -468,8 +516,13 @@ PHP 8.5 UPGRADE NOTES
     library that was separated from ext/dom for being reused among other
     extensions. The new extension is not directly exposed to userland.
 
+- URI:
+  . An always enabled uri extension is added that can be used for handling
+    URIs and URLs according to RFC 3986 and WHATWG URL.
+    RFC: https://wiki.php.net/rfc/url_parsing_api
+
 - PCRE:
-  . Upgraded to pcre2lib from 10.44 to 10.45.
+  . Upgraded pcre2lib from 10.44 to 10.45.
 
 - PDO_Sqlite:
   . Increased minimum release version support from 3.7.7 to 3.7.17.
@@ -485,11 +538,14 @@ PHP 8.5 UPGRADE NOTES
 
 - Core:
   . PHP_BUILD_DATE.
+  . PHP_BUILD_PROVIDER.
 
 - Curl:
   . CURLINFO_USED_PROXY.
   . CURLINFO_HTTPAUTH_USED.
   . CURLINFO_PROXYAUTH_USED.
+  . CURLINFO_CONN_ID.
+  . CURLINFO_QUEUE_TIME_T.
   . CURLOPT_INFILESIZE_LARGE.
   . CURLFOLLOW_ALL.
   . CURLFOLLOW_OBEYCODE.
@@ -522,6 +578,9 @@ PHP 8.5 UPGRADE NOTES
   . T_VOID_CAST.
   . T_PIPE.
 
+- Standard:
+  . IMAGETYPE_SVG when libxml is loaded.
+
 ========================================
 11. Changes to INI File Handling
 ========================================
@@ -544,6 +603,11 @@ PHP 8.5 UPGRADE NOTES
   . The default value of opcache.jit_hot_loop is now 61 (a prime) to prevent it
     from being a multiple of loop iteration counts.
     It is recommended that this parameter is set to a prime number.
+
+- OpenSSL:
+  Added openssl.libctx to select the OpenSSL library context type. Either
+  custom libctx for each thread can be used or a single global (default)
+  libctx is used.
 
 ========================================
 12. Windows Support
@@ -593,6 +657,13 @@ PHP 8.5 UPGRADE NOTES
   . The `-z` or `--zend-extension` option has been removed as it was
     non-functional. Use `-d zend_extension=<path>` instead.
 
+- PDO_ODBC
+  . The fetch behaviour for larger columns has been changed. Rather than
+    fetching 256 byte blocks, PDO_ODBC will try to fetch a larger block size;
+    currently, this is the page size minus string overhead. Drivers that
+    return SQL_NO_TOTAL in SQLGetData are also better handled as well.
+    This should improve compatibility and performance. See GH-10809, GH-10733.
+
 ========================================
 14. Performance Improvements
 ========================================
@@ -627,6 +698,7 @@ PHP 8.5 UPGRADE NOTES
   . Improved unpack() performance with nameless repetitions by avoiding
     creating temporary strings and reparsing them.
   . Improved pack() performance.
+  . Minor improvements in array_chunk() performance.
 
 - XMLReader:
   . Improved property access performance.

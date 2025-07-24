@@ -1,5 +1,5 @@
 --TEST--
-ob_start(): Check behaviour with multiple nested handlers with had return values
+ob_start(): Check behaviour with multiple nested handlers with bad return values
 --FILE--
 <?php
 
@@ -69,21 +69,38 @@ echo "\n\nLog:\n";
 echo implode("\n", $log);
 ?>
 --EXPECTF--
+Deprecated: ob_end_flush(): Producing output from user output handler return_given_string is deprecated in %s on line %d3
+
+Deprecated: ob_end_flush(): Producing output from user output handler return_empty_string is deprecated in %s on line %d2
+
+
 Log:
 return_zero: <<<Testing...>>>
 return_string: <<<
 Deprecated: ob_end_flush(): Returning a non-string result from user output handler return_zero is deprecated in %s on line %d
 0>>>
-return_null: <<<I stole your output.>>>
+return_null: <<<
+Deprecated: ob_end_flush(): Producing output from user output handler return_string is deprecated in %s on line %d
+I stole your output.>>>
 return_true: <<<
+Deprecated: ob_end_flush(): Producing output from user output handler return_null is deprecated in %s on line %d
+
 Deprecated: ob_end_flush(): Returning a non-string result from user output handler return_null is deprecated in %s on line %d
 >>>
 return_false: <<<
-Deprecated: ob_end_flush(): Returning a non-string result from user output handler return_true is deprecated in %s on line %d
->>>
-return_empty_string: <<<
-Deprecated: ob_end_flush(): Returning a non-string result from user output handler return_false is deprecated in %s on line %d
+Deprecated: ob_end_flush(): Producing output from user output handler return_true is deprecated in %s on line %d
 
 Deprecated: ob_end_flush(): Returning a non-string result from user output handler return_true is deprecated in %s on line %d
 >>>
-return_given_string: <<<>>>
+return_empty_string: <<<
+Deprecated: ob_end_flush(): Producing output from user output handler return_false is deprecated in %s on line %d
+
+Deprecated: ob_end_flush(): Returning a non-string result from user output handler return_false is deprecated in %s on line %d
+
+Deprecated: ob_end_flush(): Producing output from user output handler return_true is deprecated in %s on line %d
+
+Deprecated: ob_end_flush(): Returning a non-string result from user output handler return_true is deprecated in %s on line %d
+>>>
+return_given_string: <<<
+Deprecated: ob_end_flush(): Producing output from user output handler return_empty_string is deprecated in %s on line %d2
+>>>
