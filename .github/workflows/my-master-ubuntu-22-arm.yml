@@ -1,18 +1,17 @@
-name: my-master-ubuntu-22-nightly
+name: my-master-ubuntu-22-arm
 
 on:
-  schedule:
-    - cron: "0 5 * * *" # 每天运行
-  workflow_dispatch: ~
-#  push:
-#    branches: ["my-master"] # 仅在 my-master 分支触发
+  push:
+    branches: ["my-master"] # 仅在 my-master 分支触发
+  commit:
+    branches: ["my-master"] # 仅在 my-master 分支触发
 
 jobs:
   build:
-    runs-on: ubuntu-22.04 # 使用 ubuntu-22.04 系统
+    runs-on: ubuntu-22.04-arm # 使用 ubuntu-22.04-arm 系统
     steps: # 步骤
       - name: env # 预设环境变量
-        run: echo "WORKING_DIR=$PWD" >> $GITHUB_ENV && echo "PREFIX_DIR=$PWD/output" >> $GITHUB_ENV && echo "INI_DIR=$PWD/output/ini" >> $GITHUB_ENV && echo "EXT_DIR=$PWD/'output/bin/php-config --extension-dir'" >> $GITHUB_ENV && TMP_ZIP_DIR=`realpath $PWD/..` && echo "ZIP_DIR=$TMP_ZIP_DIR" >> $GITHUB_ENV && ZIP_FILE="php-master-ubuntu-22.04-x86_64-`date '+%Y-%m-%d.%H-%M-%S'`.zip" && echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
+        run: echo "WORKING_DIR=$PWD" >> $GITHUB_ENV && echo "PREFIX_DIR=$PWD/output" >> $GITHUB_ENV && echo "INI_DIR=$PWD/output/ini" >> $GITHUB_ENV && echo "EXT_DIR=$PWD/'output/bin/php-config --extension-dir'" >> $GITHUB_ENV && TMP_ZIP_DIR=`realpath $PWD/..` && echo "ZIP_DIR=$TMP_ZIP_DIR" >> $GITHUB_ENV && ZIP_FILE="php-master-ubuntu-22.04-arm64-`date '+%Y-%m-%d.%H-%M-%S'`.zip" && echo "ZIP_FILE=$ZIP_FILE" >> $GITHUB_ENV
       - name: apt update # 更新 apt
         run: sudo apt update -y
       - name: dependence # 安装依赖，主要是扩展的依赖
