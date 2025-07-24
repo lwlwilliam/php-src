@@ -3,8 +3,6 @@ name: my-master-ubuntu-22
 on:
   push:
     branches: ["my-master"] # 仅在 my-master 分支触发
-  commit:
-    branches: ["my-master"] # 仅在 my-master 分支触发
 
 jobs:
   build:
