@@ -25,6 +25,7 @@
 #include "zend_extensions.h"
 #include "zend_compile.h"
 #include "ZendAccelerator.h"
+#include "zend_modules.h"
 #include "zend_persist.h"
 #include "zend_shared_alloc.h"
 #include "zend_accelerator_module.h"
@@ -102,15 +103,12 @@ typedef int gid_t;
 
 #include "zend_simd.h"
 
-ZEND_EXTENSION();
+static zend_extension opcache_extension_entry;
 
 #ifndef ZTS
 zend_accel_globals accel_globals;
 #else
 int accel_globals_id;
-#if defined(COMPILE_DL_OPCACHE)
-ZEND_TSRMLS_CACHE_DEFINE()
-#endif
 #endif
 
 /* Points to the structure shared across all PHP processes */
@@ -1736,19 +1734,11 @@ static void zend_accel_set_auto_globals(int mask)
 	ZCG(auto_globals_mask) |= mask;
 }
 
-static void replay_warnings(uint32_t num_warnings, zend_error_info **warnings) {
-	for (uint32_t i = 0; i < num_warnings; i++) {
-		zend_error_info *warning = warnings[i];
-		zend_error_zstr_at(warning->type, warning->filename, warning->lineno, warning->message);
-	}
-}
-
 static zend_persistent_script *opcache_compile_file(zend_file_handle *file_handle, int type, zend_op_array **op_array_p)
 {
 	zend_persistent_script *new_persistent_script;
 	uint32_t orig_functions_count, orig_class_count;
 	zend_op_array *orig_active_op_array;
-	zval orig_user_error_handler;
 	zend_op_array *op_array;
 	bool do_bailout = false;
 	accel_time_t timestamp = 0;
@@ -1816,13 +1806,6 @@ static zend_persistent_script *opcache_compile_file(zend_file_handle *file_handl
 	orig_active_op_array = CG(active_op_array);
 	orig_functions_count = EG(function_table)->nNumUsed;
 	orig_class_count = EG(class_table)->nNumUsed;
-	ZVAL_COPY_VALUE(&orig_user_error_handler, &EG(user_error_handler));
-
-	/* Override them with ours */
-	ZVAL_UNDEF(&EG(user_error_handler));
-	if (ZCG(accel_directives).record_warnings) {
-		zend_begin_record_errors();
-	}
 
 	zend_try {
 		orig_compiler_options = CG(compiler_options);
@@ -1852,13 +1835,12 @@ static zend_persistent_script *opcache_compile_file(zend_file_handle *file_handl
 
 	/* Restore originals */
 	CG(active_op_array) = orig_active_op_array;
-	EG(user_error_handler) = orig_user_error_handler;
-	EG(record_errors) = 0;
 
 	if (!op_array) {
 		/* compilation failed */
-		zend_free_recorded_errors();
 		if (do_bailout) {
+			EG(record_errors) = false;
+			zend_free_recorded_errors();
 			zend_bailout();
 		}
 		return NULL;
@@ -1873,10 +1855,6 @@ static zend_persistent_script *opcache_compile_file(zend_file_handle *file_handl
 	zend_accel_move_user_functions(CG(function_table), CG(function_table)->nNumUsed - orig_functions_count, &new_persistent_script->script);
 	zend_accel_move_user_classes(CG(class_table), CG(class_table)->nNumUsed - orig_class_count, &new_persistent_script->script);
 	zend_accel_build_delayed_early_binding_list(new_persistent_script);
-	new_persistent_script->num_warnings = EG(num_errors);
-	new_persistent_script->warnings = EG(errors);
-	EG(num_errors) = 0;
-	EG(errors) = NULL;
 
 	efree(op_array); /* we have valid persistent_script, so it's safe to free op_array */
 
@@ -1958,7 +1936,7 @@ static zend_op_array *file_cache_compile_file(zend_file_handle *file_handle, int
 				}
 			}
 		}
-		replay_warnings(persistent_script->num_warnings, persistent_script->warnings);
+		zend_emit_recorded_errors_ex(persistent_script->num_warnings, persistent_script->warnings);
 
 	    if (persistent_script->ping_auto_globals_mask & ~ZCG(auto_globals_mask)) {
 			zend_accel_set_auto_globals(persistent_script->ping_auto_globals_mask & ~ZCG(auto_globals_mask));
@@ -1967,11 +1945,22 @@ static zend_op_array *file_cache_compile_file(zend_file_handle *file_handle, int
 		return zend_accel_load_script(persistent_script, 1);
 	}
 
+	zend_begin_record_errors();
+
 	persistent_script = opcache_compile_file(file_handle, type, &op_array);
 
 	if (persistent_script) {
+		if (ZCG(accel_directives).record_warnings) {
+			persistent_script->num_warnings = EG(num_errors);
+			persistent_script->warnings = EG(errors);
+		}
+
 		from_memory = false;
 		persistent_script = cache_script_in_file_cache(persistent_script, &from_memory);
+
+		zend_emit_recorded_errors();
+		zend_free_recorded_errors();
+
 		return zend_accel_load_script(persistent_script, from_memory);
 	}
 
@@ -2170,6 +2159,8 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 			return accelerator_orig_compile_file(file_handle, type);
 		}
 
+		zend_begin_record_errors();
+
 		SHM_PROTECT();
 		HANDLE_UNBLOCK_INTERRUPTIONS();
 		persistent_script = opcache_compile_file(file_handle, type, &op_array);
@@ -2181,6 +2172,11 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 		 */
 		from_shared_memory = false;
 		if (persistent_script) {
+			if (ZCG(accel_directives).record_warnings) {
+				persistent_script->num_warnings = EG(num_errors);
+				persistent_script->warnings = EG(errors);
+			}
+
 			/* See GH-17246: we disable GC so that user code cannot be executed during the optimizer run. */
 			bool orig_gc_state = gc_enable(false);
 			persistent_script = cache_script_in_shared_memory(persistent_script, key, &from_shared_memory);
@@ -2193,6 +2189,8 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 		if (!persistent_script) {
 			SHM_PROTECT();
 			HANDLE_UNBLOCK_INTERRUPTIONS();
+			zend_emit_recorded_errors();
+			zend_free_recorded_errors();
 			return op_array;
 		}
 		if (from_shared_memory) {
@@ -2206,6 +2204,9 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 		persistent_script->dynamic_members.last_used = ZCG(request_time);
 		SHM_PROTECT();
 		HANDLE_UNBLOCK_INTERRUPTIONS();
+
+		zend_emit_recorded_errors();
+		zend_free_recorded_errors();
 	} else {
 
 #ifndef ZEND_WIN32
@@ -2248,7 +2249,7 @@ zend_op_array *persistent_compile_file(zend_file_handle *file_handle, int type)
 		SHM_PROTECT();
 		HANDLE_UNBLOCK_INTERRUPTIONS();
 
-		replay_warnings(persistent_script->num_warnings, persistent_script->warnings);
+		zend_emit_recorded_errors_ex(persistent_script->num_warnings, persistent_script->warnings);
 		from_shared_memory = true;
 	}
 
@@ -2315,7 +2316,7 @@ static zend_class_entry* zend_accel_inheritance_cache_get(zend_class_entry *ce, 
 		entry = zend_accel_inheritance_cache_find(entry, ce, parent, traits_and_interfaces, &needs_autoload);
 		if (entry) {
 			if (!needs_autoload) {
-				replay_warnings(entry->num_warnings, entry->warnings);
+				zend_emit_recorded_errors_ex(entry->num_warnings, entry->warnings);
 				if (ZCSG(map_ptr_last) > CG(map_ptr_last)) {
 					zend_map_ptr_extend(ZCSG(map_ptr_last));
 				}
@@ -2468,9 +2469,6 @@ static zend_class_entry* zend_accel_inheritance_cache_add(zend_class_entry *ce, 
 	entry->warnings = zend_persist_warnings(EG(num_errors), EG(errors));
 	entry->next = proto->inheritance_cache;
 	proto->inheritance_cache = entry;
-
-	EG(num_errors) = 0;
-	EG(errors) = NULL;
 
 	ZCSG(map_ptr_last) = CG(map_ptr_last);
 
@@ -2969,9 +2967,6 @@ static zend_result zend_accel_init_shm(void)
 
 static void accel_globals_ctor(zend_accel_globals *accel_globals)
 {
-#if defined(COMPILE_DL_OPCACHE) && defined(ZTS)
-	ZEND_TSRMLS_CACHE_UPDATE();
-#endif
 	memset(accel_globals, 0, sizeof(zend_accel_globals));
 	accel_globals->key = zend_string_alloc(ZCG_KEY_LEN, true);
 	GC_MAKE_PERSISTENT_LOCAL(accel_globals->key);
@@ -3156,6 +3151,11 @@ static void accel_move_code_to_huge_pages(void)
 # endif /* defined(MAP_HUGETLB) || defined(MADV_HUGEPAGE) */
 #endif /* HAVE_HUGE_CODE_PAGES */
 
+void start_accel_extension(void)
+{
+	zend_register_extension(&opcache_extension_entry, NULL);
+}
+
 static int accel_startup(zend_extension *extension)
 {
 #ifdef ZTS
@@ -3174,11 +3174,7 @@ static int accel_startup(zend_extension *extension)
 # endif
 #endif
 
-	if (start_accel_module() == FAILURE) {
-		accel_startup_ok = false;
-		zend_error(E_WARNING, ACCELERATOR_PRODUCT_NAME ": module registration failed!");
-		return FAILURE;
-	}
+	zend_accel_register_ini_entries();
 
 #ifdef ZEND_WIN32
 	if (UNEXPECTED(accel_gen_uname_id() == FAILURE)) {
@@ -3509,6 +3505,8 @@ void accel_shutdown(void)
 	if ((ini_entry = zend_hash_str_find_ptr(EG(ini_directives), "include_path", sizeof("include_path")-1)) != NULL) {
 		ini_entry->on_modify = orig_include_path_on_modify;
 	}
+
+	accel_startup_ok = false;
 }
 
 void zend_accel_schedule_restart(zend_accel_restart_reason reason)
@@ -5084,7 +5082,7 @@ static void accel_activate(void) {
 	}
 }
 
-ZEND_EXT_API zend_extension zend_extension_entry = {
+static zend_extension opcache_extension_entry = {
 	ACCELERATOR_PRODUCT_NAME,               /* name */
 	PHP_VERSION,							/* version */
 	"Zend Technologies",					/* author */

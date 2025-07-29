@@ -44,6 +44,12 @@ PHP 8.5 UPGRADE NOTES
   . Traits are now bound before the parent class. This is a subtle behavioral
     change, but should more closely match user expectations, demonstrated by
     GH-15753 and GH-16198.
+  . Errors emitted during compilation and class linking are now always delayed
+    and handled after compilation or class linking. Fatal errors emitted during
+    compilation or class linking cause any delayed errors to be handled
+    immediately, without calling user-defined error handlers.
+  . Exceptions thrown by user-defined error handlers when handling class linking
+    errors are not promoted to fatal errors anymore and do not prevent linking.
 
 - DOM:
   . Cloning a DOMNamedNodeMap, DOMNodeList, Dom\NamedNodeMap, Dom\NodeList,
@@ -70,6 +76,16 @@ PHP 8.5 UPGRADE NOTES
 - MySQLi:
   . Calling the mysqli constructor on an already-constructed object
     is now no longer possible and throws an Error.
+
+- Opcache:
+  . The Opcache extension is now always built into the PHP binary and is always
+    loaded. The INI directives opcache.enable and opcache.enable_cli are still
+    honored.
+    The --enable-opcache/--disable-opcache configure flags have been removed,
+    and the build does not produce opcache.so or php_opcache.dll objects
+    anymore.
+    Using zend_extension=opcache.so or zend_extension=php_opcache.dll INI
+    directives will emit a warning.
 
 - PCNTL:
   . pcntl_exec() now throws ValueErrors when entries of the $args parameter
@@ -198,6 +214,8 @@ PHP 8.5 UPGRADE NOTES
     request spent in libcurl’s connection queue before it was sent.
     This value can also be retrieved by passing CURLINFO_QUEUE_TIME_T to the
     curl_getinfo() $option parameter.
+  . Added support for CURLOPT_SSL_SIGNATURE_ALGORITHMS to specify the signature
+    algorithms to use for TLS.
 
 - DOM:
   . Added Dom\Element::$outerHTML.
@@ -327,6 +345,10 @@ PHP 8.5 UPGRADE NOTES
 - libxml:
   . libxml_set_external_entity_loader() now has a formal return type of true.
 
+- OpenSSL:
+  . openssl_public_encrypt() and openssl_private_decrypt() have new parameter
+    $digest_algo that allows specifying hash digest algorith for OEAP padding.
+
 - PCNTL:
   . pcntl_exec() now has a formal return type of false.
   . pcntl_waitid() takes an additional resource_usage argument to
@@ -359,6 +381,10 @@ PHP 8.5 UPGRADE NOTES
     an invalid file descriptor.
   . posix_fpathconf checks invalid file descriptors and sets
     last_error to EBADF and raises an E_WARNING message.
+  . posix_kill throws a ValueError when the process_id argument is lower
+    or greater than what supports the platform (signed integer or long
+    range), posix_setpgid throws a ValueError when the process_id is
+    lower than zero or greater than what supports the platform.
 
 - Reflection:
   . The output of ReflectionClass::toString() for enums has changed to
@@ -516,6 +542,11 @@ PHP 8.5 UPGRADE NOTES
     library that was separated from ext/dom for being reused among other
     extensions. The new extension is not directly exposed to userland.
 
+- Opcache:
+  . The Opcache extension is now always built into the PHP binary and is always
+    loaded. The INI directives opcache.enable and opcache.enable_cli are still
+    honored.
+
 - URI:
   . An always enabled uri extension is added that can be used for handling
     URIs and URLs according to RFC 3986 and WHATWG URL.
@@ -603,6 +634,9 @@ PHP 8.5 UPGRADE NOTES
   . The default value of opcache.jit_hot_loop is now 61 (a prime) to prevent it
     from being a multiple of loop iteration counts.
     It is recommended that this parameter is set to a prime number.
+  . Changing opcache.memory_consumption when OPcache SHM is already set up
+    will now correctly report a failure instead of silently doing nothing and
+    showing misleading values in PHPInfo.
 
 - OpenSSL:
   Added openssl.libctx to select the OpenSSL library context type. Either
@@ -683,6 +717,10 @@ PHP 8.5 UPGRADE NOTES
 - MBString:
   . The parts of the code that used SSE2 have been adapted to use SIMD
     with ARM NEON as well.
+
+- Opcache:
+  . Improved performance of fetching TLS variables in JIT'ed code in non-Glibc
+    builds.
 
 - ReflectionProperty:
   . Improved performance of the following methods: getValue(), getRawValue(),

@@ -10,6 +10,31 @@ PHP                                                                        NEWS
 - Curl:
   . Add support for CURLINFO_CONN_ID in curl_getinfo() (thecaliskan)
   . Add support for CURLINFO_QUEUE_TIME_T in curl_getinfo() (thecaliskan)
+  . Add support for CURLOPT_SSL_SIGNATURE_ALGORITHMS. (Ayesh Karunaratne)
+
+- GD:
+  . Fix incorrect comparison with result of php_stream_can_cast(). (Girgias)
+
+- Intl:
+  . Fix return value on failure for resourcebundle count handler. (Girgias)
+
+
+- OPcache:
+  . Disallow changing opcache.memory_consumption when SHM is already set up.
+    (timwolla)
+  . Fixed bug GH-15074 (Compiling opcache statically into ZTS PHP fails).
+    (Arnaud)
+  . Make OPcache non-optional (Arnaud, timwolla)
+  . Fixed bug GH-17422 (OPcache bypasses the user-defined error handler for
+    deprecations). (Arnaud, timwolla)
+
+- OpenSSL:
+  . Add $digest_algo parameter to openssl_public_encrypt() and
+    openssl_private_decrypt() functions. (Jakub Zelenka)
+
+- POSIX:
+  . posix_kill and posix_setpgid throws a ValueError on invalid process_id.
+    (David Carlier)
 
 - Reflection:
   . Fixed bug GH-19187 (ReflectionNamedType::getName() prints nullable type when
@@ -18,6 +43,10 @@ PHP                                                                        NEWS
 - Session:
   . Fixed GH-19197: build broken with ZEND_STRL usage with memcpy
     when implemented as macro. (David Carlier)
+
+- Soap:
+  . Fixed bug GH-19226 (Segfault when spawning new thread in soap extension).
+    (Florian Engelhardt)
 
 - Sockets:
   . socket_set_option for multicast context throws a ValueError
